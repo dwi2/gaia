@@ -108,6 +108,7 @@ var KeyboardManager = {
     window.addEventListener('applicationinstallsuccess', this);
     window.addEventListener('applicationuninstall', this);
     window.addEventListener('keyboardsrefresh', this);
+    window.addEventListener('localized', this);
 
     // To handle keyboard layout switching
     window.addEventListener('mozChromeEvent', function(evt) {
@@ -123,9 +124,6 @@ var KeyboardManager = {
           self.inputFocusChange(evt);
           break;
       }
-    });
-    window.addEventListener('localized', function(evt) {
-      self.updateLayouts(evt);
     });
 
     // XXX: Bug 906096, need to remove this when the IME WebAPI is ready
@@ -144,6 +142,7 @@ var KeyboardManager = {
 
   updateLayouts: function km_updateLayouts(evt) {
     var self = this;
+    console.log('[!!!] updateLayouts');
     function resetLayoutList(apps) {
       self.keyboardLayouts = {};
       // filter out disabled layouts
@@ -367,6 +366,11 @@ var KeyboardManager = {
         this.updateLayoutSettings();
         break;
       case 'keyboardsrefresh': // keyboard settings update
+        console.log('[!!!] Received keyboardsrefresh');
+        this.updateLayouts();
+        break;
+      case 'localized':
+        console.log('[!!!] Received localized');
         this.updateLayouts();
         break;
     }
@@ -580,16 +584,25 @@ var KeyboardManager = {
     if (frame.setInputMethodActive) {
       frame.setInputMethodActive(active);
     }
+  },
+
+  safeInit: function km_safeInit() {
+    var self = this,
+      l10n = navigator.mozL10n;
+    function wrapper() {
+      self.init();
+      LazyLoader.load('shared/js/keyboard_helper.js');
+    };
+    // Make sure Application and L10n is ready before init
+    l10n.ready(wrapper);
   }
 };
 
 if (Applications.ready) {
-  KeyboardManager.init();
-  LazyLoader.load('shared/js/keyboard_helper.js');
+  KeyboardManager.safeInit();
 } else {
   window.addEventListener('applicationready', function mozAppsReady(event) {
     window.removeEventListener('applicationready', mozAppsReady);
-    KeyboardManager.init();
-    LazyLoader.load('shared/js/keyboard_helper.js');
+    KeyboardManager.safeInit();
   });
 }
