@@ -268,6 +268,9 @@ var Settings = {
 
     // preset all inputs that have a `name' attribute
     this.presetPanel();
+
+    // init toaster
+    Toaster.initialize(document.body);
   },
 
   loadPanel: function settings_loadPanel(panel, cb) {

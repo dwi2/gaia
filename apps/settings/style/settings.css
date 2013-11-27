@@ -667,3 +667,10 @@ section[data-dialog] > header:first-child .icon.icon-back {
   background-image: url(/shared/style/headers/images/icons/close.png);
 }
 
+/******************************************************************************
+ * Toaster
+ */
+
+section[role="status"] {
+  transition: all .6s ease 0s;
+}
