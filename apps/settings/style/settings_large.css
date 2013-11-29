@@ -59,6 +59,11 @@
     width: calc(100% - 40rem);
   }
 
+  section[role="region"].previous.stay-on-screen,
+  section[role="alertdialog"].previous.stay-on-screen {
+    transform: none;
+  }
+
   section[role="region"]#root header {
     background: url("images/ui/tablet_menu_header.png") repeat-x scroll 0% 0% / auto 100% transparent;
   }
@@ -149,6 +154,34 @@
 
   section[role="region"]:not([id='root']) ul li.hint .explanation {
     padding-left: 4rem;
+  }
+
+  /**
+   * dialog
+   */
+  section[role="alertdialog"].current {
+    width: 68rem;
+    height: 39rem;
+    top: calc(50% - 19.5rem);
+    left: calc(50% - 34rem);
+    z-index: 12;
+    display: inline;
+  }
+
+  section[role="alertdialog"],
+  section[role="alertdialog"].previous {
+    display: none;
+  }
+
+  section#backdrop {
+    opacity: 0.8;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 11;
+    background-color: #4e4e4e;
   }
 
   /**

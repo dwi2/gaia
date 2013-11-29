@@ -18,7 +18,8 @@ html, body {
  */
 
 /* Setting panels: full-size <section role="region"> blocks */
-section[role="region"] {
+section[role="region"],
+section[role="alertdialog"] {
   position: absolute;
   top: 0;
   left: 0;
@@ -39,16 +40,19 @@ section[role="region"] {
  * the `.previous', '.current' classes are set by settings.js
  */
 
-section[role="region"] {
+section[role="region"],
+section[role="alertdialog"] {
   transform: translateX(+100%);
   transition: transform .4s ease, visibility .4s ease;
 }
 
-section[role="region"].previous {
+section[role="region"].previous,
+section[role="alertdialog"].previous {
   transform: translateX(-100%);
 }
 
-section[role="region"].current {
+section[role="region"].current,
+section[role="alertdialog"].current {
   transform: translateX(0);
 }
 

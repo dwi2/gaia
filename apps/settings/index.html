@@ -205,9 +205,9 @@
     <!-- Connectivity :: Cellular & Data :: A-GPS Settings -->
     <section is="carrier-suplSettings" role="region" id="carrier-suplSettings"></section>
     <!-- Connectivity :: Cellular & Data :: Data Connection Warnings -->
-    <section is="carrier-dc-warning" role="region" id="carrier-dc-warning"></section>
+    <section is="carrier-dc-warning" role="alertdialog" id="carrier-dc-warning"></section>
     <!-- Connectivity :: Cellular & Data :: Data Roaming Warnings -->
-    <section is="carrier-dr-warning" role="region" id="carrier-dr-warning"></section>
+    <section is="carrier-dr-warning" role="alertdialog" id="carrier-dr-warning"></section>
     <!-- Connectivity :: Cellular & Data -->
     <section is="carrier" role="region" id="carrier" data-require-sub-panels="true"></section>
     <!-- Connectivity :: Bluetooth -->
@@ -239,7 +239,7 @@
     <section is="keyboard-selection" role="region" id="keyboard-selection"></section>
     <!-- Personalization :: Keyboard -->
     <section is="keyboard" role="region" id="keyboard" data-require-sub-panels="true"></section>
-    <section is="keyboard-enabled-default" role="region" id="keyboard-enabled-default"></section>
+    <section is="keyboard-enabled-default" role="alertdialog" id="keyboard-enabled-default"></section>
 
     <!-- Security :: Phone Lock :: PIN Input -->
     <section is="phoneLock-passcode" role="region" id="phoneLock-passcode"></section>
@@ -293,6 +293,9 @@
 
     <!-- SIM Toolkit -->
     <section is="icc" role="region" id="icc"></section>
+
+    <!-- Alertdialog backdrop -->
+    <section id="backdrop" hidden></section>
 
     <!-- Main List -->
     <section role="region" id="root" class="current" data-rendered="true">

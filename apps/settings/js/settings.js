@@ -48,6 +48,7 @@ var Settings = {
   },
 
   _transit: function transit(oldPanel, newPanel, callback) {
+    this._pageTransitions._backdrop.hidden = true;
     if (this.isTabletAndLandscape()) {
       this._pageTransitions.twoColumn(oldPanel, newPanel, callback);
     } else {
@@ -56,6 +57,7 @@ var Settings = {
   },
 
   _pageTransitions: {
+    _backdrop: document.getElementById('backdrop'),
     _sendPanelReady: function _send_panel_ready(oldPanelHash, newPanelHash) {
       var detail = {
         previous: oldPanelHash,
@@ -103,6 +105,12 @@ var Settings = {
     twoColumn: function two_column(oldPanel, newPanel, callback) {
       oldPanel.className = newPanel.className ? '' : 'previous';
       newPanel.className = 'current';
+
+      if (newPanel.getAttribute('role') === 'alertdialog') {
+        dump('Into alertdialog\n');
+        oldPanel.classList.add('stay-on-screen');
+        this._backdrop.hidden = false;
+      }
 
       this._sendPanelReady('#' + oldPanel.id, '#' + newPanel.id);
 
