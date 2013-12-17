@@ -288,5 +288,90 @@ var WifiHelper = {
 
   isEap: function(network) {
     return this.getKeyManagement(network).indexOf('EAP') !== -1;
+  },
+
+  _unionNetworks: function(available, known) {
+    var self = this;
+    var result = available || {};
+
+    console.log('DO UNION!');
+
+    [].forEach.call(known, function(network) {
+      var securityOfNetwork = self.getSecurity(network).join('+');
+      var inResult = false;
+      result.forEach(function(value) {
+        if (network.ssid === value.ssid &&
+            securityOfNetwork === self.getSecurity(value).join('+')) {
+          inResult = true;
+        }
+      });
+      if (!inResult) {
+        result.push(network);
+      }
+    });
+
+    console.log('Networks are:');
+    result.forEach(function(network) {
+      console.log('\t' + network.ssid);
+    });
+    return result;
+  },
+
+  getAvailableAndKnownNetworks: function() {
+    var fakeReq = {
+      onsuccess: null,
+      onerror: null
+    };
+    var self = this;
+    var availableNetworks = null;
+    var availableNetworksReq = this.getWifiManager().getNetworks();
+    var knownNetworks = null;
+    var knownNetworksReq = this.getWifiManager().getKnownNetworks();
+
+    availableNetworksReq.onsuccess = function anrOnSuccess() {
+      var allNetworks = availableNetworksReq.result;
+      availableNetworks = {};
+      for (var i = 0; i < allNetworks.length; ++i) {
+        var network = allNetworks[i];
+        // use ssid + capabilities as a composited key
+        var key = network.ssid + '+' +
+          self.getSecurity(network).join('+');
+        availableNetworks[key] = network;
+      }
+      if (availableNetworks && knownNetworks) {
+        fakeReq.result = self._unionNetworks(availableNetworks, knownNetworks);
+        fakeReq.onsuccess();
+      }
+    };
+    availableNetworksReq.onerror = function anrOnError(error) {
+      availableNetworks = {};
+      console.log('available networks error');
+      if (fakeReq.onerror)
+        fakeReq.onerror(error);
+    };
+
+    knownNetworksReq.onsuccess = function knrOnSuccess() {
+      knownNetworks = {};
+      var allNetworks = knownNetworksReq.result;
+      for (var i = 0; i < allNetworks.length; ++i) {
+        var network = allNetworks[i];
+        // use ssid + capabilities as a composited key
+        var key = network.ssid + '+' +
+          WifiHelper.getSecurity(network).join('+');
+        knownNetworks[key] = network;
+      }
+      if (availableNetworks && knownNetworks) {
+        fakeReq.result = self._unionNetworks(availableNetworks, knownNetworks);
+        fakeReq.onsuccess();
+      }
+    };
+    knownNetworksReq.onerror = function knrOnError(error) {
+      knownNetworks = {};
+      console.log('known networks error');
+      if (fakeReq.onerror)
+        fakeReq.onerror(error);
+    };
+
+    return fakeReq;
   }
 };
