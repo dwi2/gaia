@@ -48,14 +48,7 @@ marionette('Install bookmark on homescreen', function() {
       client.switchToFrame();
       notifToaster = client.findElement('#notification-toaster');
       if (notifToaster.displayed()) {
-        // Bug 952377: client.helper.waitForElementToDisappear(notifToaster)
-        // will failed and got timeout.
-        // (notifToaster.displayed() is always true)
-        // So we workaround this to wait for .displayed get removed
-        // from notifToaster
-        client.helper.waitFor(function() {
-          return notifToaster.getAttribute('class').indexOf('displayed') < 0;
-        });
+        client.helper.waitForElementToDisappear(notifToaster);
       }
       browser.backToApp();
 
