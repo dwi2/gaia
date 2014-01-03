@@ -284,6 +284,7 @@ navigator.mozL10n.ready(function bluetoothSettings() {
       unpairOpt: document.getElementById('unpair-option'),
       confirmDlg: document.getElementById('unpair-device'),
       confirmOpt: document.getElementById('confirm-option'),
+      cancelBtn: document.getElementById('cancel-option'),
 
       showActions: function showActions() {
         var self = this;
@@ -311,12 +312,26 @@ navigator.mozL10n.ready(function bluetoothSettings() {
 
       showConfirm: function showConfirm() {
         var self = this;
-        this.confirmDlg.onclick = function() {
+        this.cancelBtn.onclick = function(e) {
+          var bubs = e.bubbles ? '[BUBBLE]' : '';
+          console.log(bubs + ' confirm dlg clicked');
           return self.close();
         };
-        this.confirmOpt.onclick = function() {
+        this.confirmOpt.onclick = function(e) {
+          var bubs = e.bubbles ? '[BUBBLE]' : '';
+          console.log(bubs + ' confirm opt clicked');
           setDeviceUnpair(self.device);
+          self.close();
         };
+
+        // catch all event bubbling up to confirmDlg
+        this.confirmDlg.onclick = function(e) {
+          console.log('target.id = ' + e.target.id);
+          console.log('currentTarget.id = ' + e.currentTarget.id);
+          // TODO: if e.target.id === 'confirm-option'
+          // call setDeviceUnpair(self.device) and self.close()
+        };
+
         this.confirmDlg.hidden = false;
       },
 
