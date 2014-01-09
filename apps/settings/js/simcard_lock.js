@@ -115,6 +115,7 @@
       var target = evt.target;
       var cardIndex = target.dataset && target.dataset.simIndex;
       var type = target.dataset && target.dataset.type;
+      var self = this;
 
       switch (type) {
         case 'checkSimPin':
@@ -125,7 +126,13 @@
           // TODO:
           // remember to update SimPinDialog for DSDS structure
           this.simPinDialog.show('change_pin', {
-            cardIndex: cardIndex
+            cardIndex: cardIndex,
+            onsuccess: function() {
+              var simIndex = self.isSingleSim() ? '' : cardIndex + 1;
+              var message =
+                _('simPinChangedSuccessfully', { 'index': simIndex });
+              NotificationHelper.send(message, message);
+            }
           });
           break;
       }
