@@ -2,7 +2,6 @@ Keyboards.en = {
   label: 'English',
   imEngine: 'latin',
   types: ['text', 'url', 'email'],
-  autoCorrectLanguage: 'en_us',
   menuLabel: 'English',
   alt: {
     a: 'áàâäåãāæ',

@@ -1,0 +1,24 @@
+{
+  "homescreens": [
+      [
+        ["apps", "communications", "dialer"],
+        ["apps", "sms"],
+        ["apps", "communications", "contacts"],
+        ["apps", "browser"]
+      ], [
+        ["apps", "camera"],
+        ["apps", "gallery"],
+        ["apps", "fm"],
+        ["apps", "settings"],
+        ["external-apps", "marketplace.firefox.com"],
+        ["apps", "calendar"],
+        ["apps", "clock"],
+        ["apps", "email"],
+        ["apps", "music"],
+        ["apps", "video"]
+      ]
+    ],
+  "search_page": {
+    "enabled": false
+  }
+}
