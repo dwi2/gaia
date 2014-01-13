@@ -268,9 +268,6 @@ var Settings = {
 
     // preset all inputs that have a `name' attribute
     this.presetPanel();
-
-    // init toaster
-    Toaster.initialize(document.body);
   },
 
   loadPanel: function settings_loadPanel(panel, cb) {
@@ -815,6 +812,7 @@ window.addEventListener('load', function loadSettings() {
       'shared/js/mobile_operator.js',
       'shared/js/icc_helper.js',
       'shared/js/settings_listener.js',
+      'shared/js/toaster.js',
       'js/connectivity.js',
       'js/security_privacy.js',
       'js/icc_menu.js',

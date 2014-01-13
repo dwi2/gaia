@@ -129,12 +129,20 @@
             cardIndex: cardIndex,
             // show toast after user successfully change pin
             onsuccess: function toastOnSuccess() {
-              var simIndex = self.isSingleSim() ? '' : cardIndex + 1;
-              Toaster.showToast({
-                messageL10nId: 'simPinChangedSuccessfully',
-                messageL10nArgs: {'index': simIndex},
-                latency: 3000
-              });
+              var toast;
+              if (self.isSingleSim()) {
+                toast = {
+                  messageL10nId: 'simPinChangedSuccessfully',
+                  latency: 3000
+                };
+              } else {
+                toast = {
+                  messageL10nId: 'simPinChangedSuccessfullyWithIndex',
+                  messageL10nArgs: {'index': cardIndex + 1},
+                  latency: 3000
+                };
+              }
+              Toaster.showToast(toast);
             }
           });
           break;

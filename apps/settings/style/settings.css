@@ -672,5 +672,9 @@ section[data-dialog] > header:first-child .icon.icon-back {
  */
 
 section[role="status"] {
-  transition: all .6s ease 0s;
+  transition: opacity .6s ease 0s;
+}
+
+section[role="status"][hidden] {
+  opacity: 0;
 }

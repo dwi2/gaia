@@ -15,6 +15,7 @@
 var Toaster = {
   _containerElement: null,
   _messageElement: null,
+  _defaultLatency: 3000,
   _maxLatency: 5000,
   _toastQueue: [],
   _parentElement: null,
@@ -31,7 +32,7 @@ var Toaster = {
     this._toastQueue.push({
       messageL10nId: messageId,
       messageL10nArgs: messageArgs,
-      latency: (latency < this._maxLatency) ? latency : this._maxLatency
+      latency: Math.min(latency || this._defaultLatency, this._maxLatency)
     });
     // if toaster is busy, don't bother to call it to consume toast
     if (!this._isBusy()) {
@@ -48,11 +49,10 @@ var Toaster = {
         self._messageElement, toast.messageL10nId, toast.messageL10nArgs);
       self._containerElement.hidden = false;
       setTimeout(function() {
-        self._messageElement.innerHTML = '';
+        self._messageElement.textContent = '';
+        navigator.mozL10n.localize(self._messageElement, '');
         self._containerElement.hidden = true;
-        if (self._isBacklogged()) {
-          self._consumeToast();
-        }
+        self._consumeToast();
       }, toast.latency);
     }
   },
@@ -77,8 +77,8 @@ var Toaster = {
   initialize: function t_initialize(parentElement) {
     var existedToastContainer =
       document.querySelector('section[role="status"]');
-    // Remove existing element of id equals to #toast.
-    // This case only existed in unit test
+    // Remove existing element of toast
+    // This case only exists in unit test
     if (existedToastContainer) {
       existedToastContainer.parentNode.removeChild(existedToastContainer);
     }
