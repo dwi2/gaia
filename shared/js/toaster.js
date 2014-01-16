@@ -14,9 +14,11 @@
 
 var Toaster = {
   _containerElement: null,
+  _containerElementObserver: null,
   _messageElement: null,
   _defaultLatency: 3000,
   _maxLatency: 5000,
+  _maxTransitionLatency: 800,
   _toastQueue: [],
   _parentElement: null,
 
@@ -26,6 +28,32 @@ var Toaster = {
 
   _isBusy: function t_isBusy() {
     return !this._containerElement.hidden;
+  },
+
+  _showContainerElement: function t_showContainerElement() {
+    if (this._containerElement) {
+      this._containerElement.hidden = false;
+    }
+  },
+
+  _hideContainerElement: function t_hideContainerElement() {
+    if (this._containerElement) {
+      this._containerElement.hidden = true;
+    }
+  },
+
+  _mutationHandler: function t_onMutate(mutation) {
+    if (mutation.attributeName === 'class' &&
+      !this._containerElement.classList.contains('toast-visible')) {
+      this._containerElementObserver.disconnect();
+      setTimeout(
+        this._hideContainerElement.bind(this),
+        this._maxTransitionLatency);
+    }
+  },
+
+  _onContainerElementMutate: function t_onContainerElementMutate(mutations) {
+    mutations.forEach(this._mutationHandler.bind(this));
   },
 
   _produceToast: function t_producetToast(messageId, messageArgs, latency) {
@@ -47,11 +75,14 @@ var Toaster = {
       toast = self._toastQueue.shift();
       navigator.mozL10n.localize(
         self._messageElement, toast.messageL10nId, toast.messageL10nArgs);
-      self._containerElement.hidden = false;
+      self._showContainerElement();
+      self._containerElement.classList.add('toast-visible');
+      self._containerElementObserver.observe(
+        self._containerElement, {attributes: true});
       setTimeout(function() {
         self._messageElement.textContent = '';
         navigator.mozL10n.localize(self._messageElement, '');
-        self._containerElement.hidden = true;
+        self._containerElement.classList.remove('toast-visible');
         self._consumeToast();
       }, toast.latency);
     }
@@ -59,6 +90,9 @@ var Toaster = {
 
   _destroy: function t_destroy() {
     this._toastQueue = [];
+    if (this._containerElementObserver) {
+      this._containerElementObserver.disconnect();
+    }
     if (this._parentElement && this._containerElement) {
       this._parentElement.removeChild(this._containerElement);
     }
@@ -84,12 +118,14 @@ var Toaster = {
     }
     this._destroy();
     this._containerElement = document.createElement('section');
-    this._containerElement.hidden = true;
     this._containerElement.setAttribute('role', 'status');
+    this._hideContainerElement();
     this._messageElement = document.createElement('p');
     this._containerElement.appendChild(this._messageElement);
     this._parentElement = parentElement || document.body;
     this._parentElement.appendChild(this._containerElement);
+    this._containerElementObserver =
+      new MutationObserver(this._onContainerElementMutate.bind(this));
   },
 
   isInitialized: function t_isInitialized() {
@@ -98,6 +134,10 @@ var Toaster = {
             this._toastQueue);
   },
 
+  // options are:
+  //   messageL10nId
+  //   messageL10nArgs
+  //   latency
   showToast: function t_showToast(options) {
     // make sure toaster is initialized
     if (!this.isInitialized()) {

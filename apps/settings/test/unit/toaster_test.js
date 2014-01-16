@@ -7,6 +7,7 @@
 
 require('/shared/js/toaster.js');
 requireApp('settings/test/unit/mock_l10n.js');
+requireApp('settings/test/unit/mock_mutation_observer.js');
 
 var ToasterTestHelper = {
   thereShouldBeNoToastShowed: function tth_thereShouldBeNoToastShowed(elem) {
@@ -27,19 +28,34 @@ var ToasterTestHelper = {
     } else {
       assert.fail(null, null, 'No element');
     }
+  },
+
+  simulateMutation: function tth_simulateMutation() {
+    if (Toaster._containerElementObserver &&
+        Toaster._containerElementObserver.simulateMutation) {
+      Toaster._containerElementObserver.simulateMutation({
+        target: Toaster._containerElement,
+        attributeName: 'class',
+        oldValue: 'toast-visible'
+      });
+    }
   }
 };
 
 suite('Toaster', function() {
   var realMozL10n;
+  var realMutationObserver;
 
   suiteSetup(function() {
     realMozL10n = navigator.mozL10n;
+    realMutationObserver = MutationObserver;
+    MutationObserver = MockMutationObserver;
     navigator.mozL10n = MockL10n;
   });
 
   suiteTeardown(function() {
     navigator.mozL10n = realMozL10n;
+    MutationObserver = realMutationObserver;
   });
 
   suite(' > Initialize methods', function() {
@@ -133,6 +149,9 @@ suite('Toaster', function() {
         document.querySelector('section[role="status"]'),
         expectedContent);
       clock.tick(1000);
+      ToasterTestHelper.simulateMutation();
+      // wait for transition
+      clock.tick(1000);
       ToasterTestHelper.thereShouldBeNoToastShowed(
         document.querySelector('section[role="status"]'));
     });
@@ -157,19 +176,33 @@ suite('Toaster', function() {
         latency: 1000
       });
 
+      // 1st toast showed
       clock.tick(1000); // 1.000 second
       ToasterTestHelper.thereMustHaveToastShowed(
         document.querySelector('section[role="status"]'), expectedContent[0]);
       clock.tick(1000); // 2.000 second
+      ToasterTestHelper.simulateMutation();
+      // wait for transition
+      clock.tick(800); // 2.800 second
+
+      // 2nd toast showed
+      clock.tick(1500); // 4.300 second
       ToasterTestHelper.thereMustHaveToastShowed(
         document.querySelector('section[role="status"]'), expectedContent[1]);
-      clock.tick(1500); // 3.500 second
-      ToasterTestHelper.thereMustHaveToastShowed(
-        document.querySelector('section[role="status"]'), expectedContent[1]);
-      clock.tick(1500); // 5.000 second
+      clock.tick(1500); // 5.800 second
+      ToasterTestHelper.simulateMutation();
+      // wait for transition
+      clock.tick(800); // 6.600 second
+
+      // 3rd toast showed
       ToasterTestHelper.thereMustHaveToastShowed(
         document.querySelector('section[role="status"]'), expectedContent[2]);
-      clock.tick(1000);  // 6.000 second
+      clock.tick(1000);  // 7.600 second
+      ToasterTestHelper.simulateMutation();
+      // wait for transition
+      clock.tick(800); // 8.400 second
+
+      // all toasts should be cleared
       ToasterTestHelper.thereShouldBeNoToastShowed(
         document.querySelector('section[role="status"]'));
     });
