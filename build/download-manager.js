@@ -68,7 +68,7 @@ var DownloadManager = {
       tmpFile = utils.getFile(targetFolder, targetName);
     } else {
       isTemp = true;
-      tmpFile = DownloadManager._getTempFolder('gaia').clone();
+      tmpFile = utils.getTempFolder('gaia');
       tmpFile.append((new Date()).getTime() + '.tmp');
       tmpFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0644', 8));
     }
@@ -82,18 +82,6 @@ var DownloadManager = {
       logLine('download for: ' + url + ' is placed.');
       download.start().then(downloadFinished, downloadError);
     }, downloadError);
-  },
-  // private functions and variables
-  _tempFolder: null,
-  _getTempFolder: function dm_get_temp_folder(name) {
-    if (!DownloadManager._tempFolder) {
-      var file = Cc['@mozilla.org/file/directory_service;1']
-                   .getService(Ci.nsIProperties).get('TmpD', Ci.nsIFile);
-      file.append(name);
-      file.createUnique(Ci.nsIFile.DIRECTORY_TYPE, parseInt('0755', 8));
-      DownloadManager._tempFolder = file;
-    }
-    return DownloadManager._tempFolder;
   }
 };
 

@@ -33,6 +33,15 @@ function getFile() {
     isFile: function() {
       return !!fileStat && fileStat.isFile();
     },
+    append: function() {
+      // TODO
+    },
+    createUnique: function() {
+      // TODO
+    },
+    clone: function() {
+      // TODO
+    }
     path: src
   };
 }
@@ -116,6 +125,16 @@ function processEvents() {}
 
 function writeContent(file, content) {
   fs.writeFileSync(file.path, content);
+}
+
+function ensureFolderExists(file) {
+  if (!file.exists()) {
+    try {
+      fs.mkdirSync(file.path, 0755);
+    } catch (e) {
+      return;
+    }
+  }
 }
 
 exports.joinPath = joinPath;
