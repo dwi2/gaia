@@ -7,6 +7,7 @@ Cu.import('resource://gre/modules/FileUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/osfile.jsm');
 Cu.import('resource://gre/modules/Promise.jsm');
+Cu.import('resource://gre/modules/Downloads.jsm');
 
 var utils = require('./utils.js');
 /**
@@ -749,6 +750,7 @@ exports.normalizeString = normalizeString;
 exports.Commander = Commander;
 exports.getEnvPath = getEnvPath;
 exports.getLocaleBasedir = getLocaleBasedir;
+exports.createDownload = createDownload;
 // ===== the following functions support node.js compitable interface.
 exports.deleteFile = deleteFile;
 exports.listFiles = listFiles;
