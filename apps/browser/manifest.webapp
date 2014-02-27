@@ -9,6 +9,7 @@
   },
   "permissions": {
     "browser":{},
+    "webapps-manage":{},
     "systemXHR":{},
     "settings":{ "access": "readonly" },
     "geolocation" : {},
