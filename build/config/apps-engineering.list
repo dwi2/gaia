@@ -1,4 +1,5 @@
 apps/*
+showcase_apps/crystalskull
 test_external_apps/*
 external-apps/*
 outoftree_apps/*
