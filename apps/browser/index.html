@@ -10,16 +10,18 @@
   -moz-user-select: none;
   /*display: inline;*/
 }
-#menu > button {
-  width: 49%;
+#menu > span {
+  width: 23%;
 }
 .add {
-  font-size: 1.2rem;
+  text-align: center;
+  display: inline-block;
+  font-size: 1.1rem;
+  border: 1px solid;
 }
 .oframe {
   display: inline-block;
-  border: solid 1px;
-  width: 32%;
+  border: none;
 }
 .app-frame {
   display: block;
@@ -32,10 +34,15 @@
   font-size: 1.2rem;
 }
     </style>
-    <script defer src="js/gt.js"></script>
+    <script defer src="js/graphic_tester.js"></script>
   </head>
   <body>
-    <div id="menu"><button id="2D" class="add">+ 2D</buton><button id="3D" class="add">+ 3D</button></div>
+    <div id="menu">
+      <span id="2D" class="add">+2D</span>
+      <span id="B2D" class="add">+B2D</span>
+      <span id="3D" class="add">+3D</span>
+      <span id="B3D" class="add">+B3D</span>
+    </div>
     <div id="panel"></div>
   </body>
 </html>

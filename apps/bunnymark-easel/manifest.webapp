@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "name": "Bunnymark Easel",
+  "description": "An app to test EaselJS's WebGL renderer.",
+  "launch_path": "/index.html",
+  "icons": {},
+  "developer": {
+    "name": "gskinner.com inc.",
+    "url": "http://www.gskinner.com"
+  }
+}

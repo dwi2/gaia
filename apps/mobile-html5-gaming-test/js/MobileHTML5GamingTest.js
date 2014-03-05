@@ -84,6 +84,8 @@ function init(){
 	}
 
 	var canvas = document.getElementById('canvas');
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 	draw = canvas.getContext('2d');
 	fps = document.getElementById('current');
 	results = document.getElementById('results');
