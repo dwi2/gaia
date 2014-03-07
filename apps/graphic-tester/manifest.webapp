@@ -1,0 +1,41 @@
+{
+  "name": "GraphicTester",
+  "description": "Graphic Tester",
+  "launch_path": "/index.html",
+  "type": "certified",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/mozilla-b2g/gaia"
+  },
+  "permissions": {
+    "browser":{},
+    "webapps-manage":{},
+    "systemXHR":{},
+    "settings":{ "access": "readonly" },
+    "geolocation" : {},
+    "storage": {},
+    "desktop-notification" : {},
+    "audio-capture": {},
+    "video-capture": {},
+    "device-storage:pictures" : { "access": "readwrite" },
+    "device-storage:videos" : { "access": "readwrite" },
+    "device-storage:music" : { "access": "readwrite" },
+    "nfc":{ "access": "readwrite" }
+  },
+  "locales": {
+    "en-US": {
+      "name": "GraphicTester",
+      "description": "Graphic Tester"
+    },
+    "zh-TW": {
+      "name": "圖像測試",
+      "description": "圖像測試"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/shared/resources/branding/Browser_60.png",
+    "90": "/shared/resources/branding/Browser_90.png",
+    "120": "/shared/resources/branding/Browser_120.png"
+  }
+}

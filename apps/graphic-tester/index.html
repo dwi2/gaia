@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Browser</title>
+    <style>
+.panel {
+  text-align: center;
+  -moz-user-select: none;
+  /*display: inline;*/
+}
+#menu > span {
+  width: 23%;
+}
+.add {
+  text-align: center;
+  display: inline-block;
+  font-size: 1.1rem;
+  border: 1px solid;
+}
+.oframe {
+  display: inline-block;
+  border: none;
+}
+.app-frame {
+  display: block;
+  width: 100%;
+}
+.frame-close-button {
+  float: right;
+  text-align: right;
+  width: 40%;
+  font-size: 1.2rem;
+}
+    </style>
+    <script defer src="js/graphic_tester.js"></script>
+  </head>
+  <body>
+    <div id="menu">
+      <span id="2D" class="add">+2D</span>
+      <span id="B2D" class="add">+B2D</span>
+      <span id="3D" class="add">+3D</span>
+      <span id="B3D" class="add">+B3D</span>
+    </div>
+    <div id="panel"></div>
+  </body>
+</html>
