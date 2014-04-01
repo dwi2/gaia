@@ -120,6 +120,12 @@
     // we will not relaunch it until the foreground app is closed.
     // (to be dealt in setDisplayedApp(), not here)
 
+    try {
+      console.log('CALLER IS ' + HomescreenWindow.prototype.restart.caller);
+    } catch (e) {}
+    console.log('_visibilityState = ' + this._visibilityState);
+    console.log('this.element.className = ' + this.element.className);
+
     // If we're displayed, restart immediately.
     this.debug(this._visibilityState);
     if (this._visibilityState == 'foreground' ||
@@ -171,6 +177,14 @@
   // Note: this function would not invoke openWindow(homescreen),
   // which should be handled in setDisplayedApp and in closeWindow()
   HomescreenWindow.prototype.ensure = function hw_ensure(reset) {
+    try {
+      console.log('CALLER IS ' + HomescreenWindow.prototype.ensure.caller);
+    } catch (e) {}
+    if (this.element) {
+      console.log('THIS.ELEMENT ' + this.element + ' ID = ' +
+        this.element.id);
+    }
+
     if (!this.element) {
       this.render();
     } else if (reset) {

@@ -1019,6 +1019,7 @@ var WindowManager = (function() {
             app.setVisible(false, true /*screenshot*/);
           }
         } else {
+          console.log('RECV launchapp and config.origin = ' + config.origin);
           HomescreenLauncher.getHomescreen().ensure();
         }
       }
@@ -1246,6 +1247,7 @@ var WindowManager = (function() {
     } else {
       // dispatch event to close activity.
 
+      console.log('PRESS HOME KEY');
       HomescreenLauncher.getHomescreen().ensure(true);
     }
   });
