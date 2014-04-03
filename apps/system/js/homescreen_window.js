@@ -123,7 +123,10 @@
 
     // If we're displayed, restart immediately.
     this.debug(this._visibilityState);
-    if (this._selfVisibilityState == 'foreground') {
+    this.debug(this._selfVisibilityState);
+    this.debug(AttentionScreen.isVisible());
+    if (this._selfVisibilityState == 'foreground' &&
+        !AttentionScreen.isVisible()) {
       this.kill();
 
       // XXX workaround bug 810431.
