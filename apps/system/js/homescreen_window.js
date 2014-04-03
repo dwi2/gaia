@@ -3,6 +3,10 @@
     this.setBrowserConfig(manifestURL);
     this.render();
     this.publish('created');
+
+    this.restartCount = 0;
+    this.totalRestartCount = 0;
+
     if (window.AppModalDialog) {
       new AppModalDialog(this);
     }
@@ -127,12 +131,20 @@
     this.debug(AttentionScreen.isVisible());
     if (this._selfVisibilityState == 'foreground' &&
         !AttentionScreen.isVisible()) {
+      this.debug('restart (kill)');
       this.kill();
 
       // XXX workaround bug 810431.
       // we need this here and not in other situations
       // as it is expected that homescreen frame is available.
       setTimeout(function() {
+        this.debug('restart (render) ' +
+          (++this.totalRestartCount) + ' ' +
+          (++this.restartCount));
+        setTimeout(function() {
+          this.restartCount--;
+        }.bind(this), 60 * 1000);
+
         this.render();
         this.open();
       }.bind(this));
