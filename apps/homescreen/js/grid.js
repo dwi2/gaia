@@ -224,6 +224,7 @@ var GridManager = (function() {
   }
 
   function handleEvent(evt) {
+    console.log('got event: ' + evt.type);
     switch (evt.type) {
       case touchstart:
         if (currentPage)

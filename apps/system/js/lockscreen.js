@@ -390,6 +390,7 @@ var LockScreen = {
         break;
 
       case 'click':
+        console.log('got event: ' + evt.type);
         if (0 === evt.mozInputSource &&
             (this.areaUnlock === evt.target ||
              this.areaCamera === evt.target)) {
@@ -406,6 +407,7 @@ var LockScreen = {
         break;
 
       case 'touchstart':
+        console.log('got event: ' + evt.type);
         if (evt.target === this.altCamera) {
           evt.preventDefault();
           this.handleIconClick(evt.target);
@@ -422,6 +424,7 @@ var LockScreen = {
         break;
 
       case 'touchend':
+        console.log('got event: ' + evt.type);
         window.removeEventListener('touchmove', this);
         window.removeEventListener('touchend', this);
         this.overlay.classList.remove('touched');

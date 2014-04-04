@@ -80,6 +80,7 @@ var UtilityTray = {
         break;
 
       case 'touchstart':
+        console.log('got event: ' + evt.type);
         if (LockScreen.locked)
           return;
         if (evt.target !== this.overlay &&
@@ -93,6 +94,7 @@ var UtilityTray = {
         break;
 
       case 'touchmove':
+        console.log('got event: ' + evt.type);
       if (!this.active)
         return;
 
@@ -100,6 +102,7 @@ var UtilityTray = {
         break;
 
       case 'touchend':
+        console.log('got event: ' + evt.type);
         if (!this.active)
           return;
 
