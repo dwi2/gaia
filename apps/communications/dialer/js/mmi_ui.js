@@ -171,6 +171,7 @@ var MmiUI = {
         } else {
           this.showResponseForm();
         }
+        console.log('SHOW ' + data.title + ' - ' + data.message);
         this.showMessage(data.message, data.title);
         break;
       case 'mmi-loading':
