@@ -12,16 +12,7 @@ var EverythingME = {
     var gridPage = document.querySelector('#icongrid > div:first-child');
     gridPage.classList.add('evmePage');
 
-
-    // pre-evme-load pseudo searchbar
-    var activationIcon = document.createElement('div');
-    activationIcon.id = 'evme-activation-icon';
-    activationIcon.innerHTML =
-      '<input type="text" x-inputmode="verbatim"' +
-      ' data-l10n-id="evme-searchbar-default2" />';
-
-    // insert into first page
-    gridPage.insertBefore(activationIcon, gridPage.firstChild);
+    var activationIcon = document.getElementById('evme-activation-icon');
 
     // Append appropriate placeholder translation to pseudo searchbar
     navigator.mozL10n.ready(function loadSearchbarValue() {

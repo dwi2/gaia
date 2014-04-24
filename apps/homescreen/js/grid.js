@@ -706,11 +706,22 @@ var GridManager = (function() {
      */
     addPage: function(icons, numberOficons) {
       var pageElement = document.createElement('div');
+      if (pages.length === 0) {
+        console.log('pre-evme-load pseudo searchbar');
+        // first page: pre-evme-load pseudo searchbar
+        var activationIcon = document.createElement('div');
+        activationIcon.id = 'evme-activation-icon';
+        activationIcon.innerHTML =
+          '<input type="text" x-inputmode="verbatim"' +
+          ' data-l10n-id="evme-searchbar-default2" />';
+        pageElement.insertBefore(activationIcon, pageElement.firstChild);
+        pageElement.classList.add('firstPage');
+      }
       var page = new Page(pageElement, icons, numberOficons ||
                           MAX_ICONS_PER_PAGE);
       pages.push(page);
 
-      pageElement.className = 'page';
+      pageElement.classList.add('page');
       container.appendChild(pageElement);
 
       // If the new page is situated right after the current displayed page,
