@@ -1,4 +1,19 @@
 (function(window) {
+  var borrowedForEach = Array.prototype.forEach;
+  var printElement = function debug_printElement(node) {
+    if (node) {
+      console.log(node.toString() + ' #' + node.id +
+        ' .' + node.className + '');
+    }
+  };
+  var dumpElementsUnderElementId = function(elementId) {
+    var element = document.getElementById(elementId);
+    console.log('[DUMP #' + elementId + ']:\n');
+    if (element) {
+      borrowedForEach.call(element.children, printElement);
+    }
+  };
+
   var HomescreenWindow = function HomescreenWindow(manifestURL) {
     this.setBrowserConfig(manifestURL);
     this.render();
@@ -35,7 +50,13 @@
     this._transitionState = 'closed';
     this._selfVisibilityState = 'background';
     this.publish('willrender');
+    console.log('[BEFORE]this.containerElement.insertAdjacentHTML(): ');
+    dumpElementsUnderElementId('screen');
+    dumpElementsUnderElementId('windows');
     this.containerElement.insertAdjacentHTML('beforeend', this.view());
+    console.log('[AFTER]this.containerElement.insertAdjacentHTML(): ');
+    dumpElementsUnderElementId('screen');
+    dumpElementsUnderElementId('windows');
     this.browser = new BrowserFrame(this.browser_config);
     this.element = document.getElementById('homescreen');
 
@@ -46,7 +67,11 @@
     this.iframe.dataset.frameType = 'window';
     this.iframe.dataset.frameOrigin = 'homescreen';
 
+    console.log('[BEFORE]appendChild(), #homescreen children are: ');
+    borrowedForEach.call(this.element.children, printElement);
     this.element.appendChild(this.browser.element);
+    console.log('[AFTER]appendChild(), #homescreen children are: ');
+    borrowedForEach.call(this.element.children, printElement);
 
     /* XXX: We dynamically insert nodes here because
        appWindow.frame.firstChild is used as appWindow.iframe */
@@ -144,7 +169,13 @@
   };
 
   HomescreenWindow.prototype.kill = function hw_kill() {
+    console.log('[BEFORE]this.containerElement.removeChild(this.element):\n');
+    dumpElementsUnderElementId('screen');
+    dumpElementsUnderElementId('windows');
     this.containerElement.removeChild(this.element);
+    console.log('[AFTER]this.containerElement.removeChild(this.element):\n');
+    dumpElementsUnderElementId('screen');
+    dumpElementsUnderElementId('windows');
     this.element = this.frame = this.iframe = null;
     this.browser = null;
     this.publish('terminated');
