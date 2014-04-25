@@ -111,7 +111,8 @@ var CallHandler = (function callHandler() {
               app.launch('dialer');
               window.location.hash = '#call-log-view';
             };
-
+            console.log('[302769] call NotificationHelper to send: ' +
+              title + ', ' + body);
             NotificationHelper.send(title, body, iconURL, clickCB);
           };
         });
@@ -124,9 +125,12 @@ var CallHandler = (function callHandler() {
     var direction = data.direction;
     var incoming = data.direction === 'incoming';
 
+    console.log('[302769] call ended, data: ' + JSON.stringify(data));
     NavbarManager.ensureResources(function() {
       // Missed call
       if (incoming && !data.duration) {
+        console.log('[302769] send notification: ' + number + ', ' +
+          data.serviceId);
         sendNotification(number, data.serviceId);
       }
 
