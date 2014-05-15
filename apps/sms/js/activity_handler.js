@@ -308,6 +308,7 @@ var ActivityHandler = {
     var wakeLock = navigator.requestWakeLock('cpu');
     var wakeLockReleased = false;
     var timeoutID = null;
+    console.log('[Bug 1010690] receive message' + JSON.stringify(message));
     function releaseWakeLock() {
       if (timeoutID !== null) {
         clearTimeout(timeoutID);
@@ -368,6 +369,8 @@ var ActivityHandler = {
     }
 
     function dispatchNotification(needManualRetrieve) {
+      console.log('[Bug 1010690] dispatch notification: needManualRetrieve = ' +
+        needManualRetrieve + ', document.hidden = ' + document.hidden);
       // The SMS app is already displayed
       if (!document.hidden) {
         if (threadId === Threads.currentId) {
@@ -378,6 +381,7 @@ var ActivityHandler = {
       }
 
       navigator.mozApps.getSelf().onsuccess = function(evt) {
+        console.log('[Bug 1010690] getSelf() success');
         var app = evt.target.result;
         var iconURL = NotificationHelper.getIconURI(app);
 
@@ -402,16 +406,20 @@ var ActivityHandler = {
           // If the message only has text content, display text context;
           // If there is no subject nor text content, display
           // 'mms message' in the field.
+          console.log('[Bug 1010690] getTitleFromMms');
           if (needManualRetrieve) {
+            console.log('[Bug 1010690] call notDownloadedCb async');
             setTimeout(function notDownloadedCb() {
               callback(navigator.mozL10n.get('notDownloaded-title'));
             });
           }
           else if (message.subject) {
+            console.log('[Bug 1010690] message.subject = ' + message.subject);
             setTimeout(function subjectCb() {
               callback(message.subject);
             });
           } else {
+            console.log('[Bug 1010690] call SMIL.parse');
             SMIL.parse(message, function slideCb(slideArray) {
               var text, slidesLength = slideArray.length;
               for (var i = 0; i < slidesLength; i++) {
@@ -442,7 +450,9 @@ var ActivityHandler = {
             NotificationHelper.send(sender, message.body, iconURL, goToMessage);
             onSmsHandlerComplete();
           } else { // mms
+            console.log('[Bug 1010690] it\'s an MMS');
             getTitleFromMms(function textCallback(text) {
+              console.log('[Bug 1010690] call NotificationHelper.send()');
               NotificationHelper.send(sender, text, iconURL, goToMessage);
               onSmsHandlerComplete();
             });
