@@ -1,0 +1,59 @@
+body {
+  margin: 0px;
+  padding: 0px;
+}
+article {
+  padding: 0px;
+}
+article.slideaway {
+  opacity: 0;
+  transition-duration: 0.5s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+article > div {
+  text-align: center;
+  padding-bottom: 0.5rem;
+  background-color: #ddd;
+  font-size: 1.2rem;
+}
+article > div > p {
+  text-align: left;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  color: #fff;
+  background-color: #333;
+}
+article > div > p > span {
+  margin-left: 1rem;
+}
+article > div > select,
+article > h3 {
+  text-align: center;
+}
+div.button {
+  border: 1px solid #000;
+  border-radius: 0.5rem / 1rem;
+  margin: 0.2rem 0.5rem;
+  box-shadow: 0.3rem 0.1rem 0.1rem #000;
+}
+input[type=checkbox] {
+  display: none;
+}
+div.checkbox {
+  height: 2rem;
+  background: url(/style/icons/checkbox.png) center / 1.5rem no-repeat;
+
+}
+div.checkbox.checked {
+  background: url(/style/icons/checkbox-checked.png) center / 1.5rem no-repeat;
+}
+header {
+  text-align: center;
+  color: #fff;
+  background-color: #000;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+}

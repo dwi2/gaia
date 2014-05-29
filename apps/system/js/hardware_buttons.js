@@ -193,6 +193,7 @@
       case 'volume-up-button-release':
       case 'volume-down-button-press':
       case 'volume-down-button-release':
+        console.log(type);
         this.state.process(type);
         break;
     }

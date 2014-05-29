@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Hardware Key Tester</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <script src="shared/js/settings_listener.js"></script>
+    <script defer src="js/hardware-key-tester.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/default.css">
+  </head>
+  <body>
+    <header>
+      <h2>Hardware Key Tester</h2>
+    </header>
+    <article>
+      <div class="button" id="switch-mode-button">Switch Mode</div>
+    </article>
+    <article class="page">
+      <div>
+        <p><span>Power Key</span></p>
+          <select name="hardware-key.power.before" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="preventDefault">preventDefault</option>
+          </select>
+          <select name="hardware-key.power.after" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="embeddedCancelled">embeddedCancelled</option>
+          </select>
+      </div>
+      <div>
+        <p><span>Home Key</span></p>
+          <select name="hardware-key.exit.before" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="preventDefault">preventDefault</option>
+          </select>
+          <select name="hardware-key.exit.after" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="embeddedCancelled">embeddedCancelled</option>
+          </select>
+      </div>
+      <div>
+        <p><span>VolumeDown Key</span></p>
+          <select name="hardware-key.volumedown.before" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="preventDefault">preventDefault</option>
+          </select>
+          <select name="hardware-key.volumedown.after" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="embeddedCancelled">embeddedCancelled</option>
+          </select>
+      </div>
+      <div>
+        <p><span>VolumeUp Key</span></p>
+          <select name="hardware-key.volumeup.before" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="preventDefault">preventDefault</option>
+          </select>
+          <select name="hardware-key.volumeup.after" class="hardware-key">
+            <option value="dontCare">don't care</option>
+            <option value="embeddedCancelled">embeddedCancelled</option>
+          </select>
+      </div>
+    </article>
+    <article class="page slideaway" hidden>
+      <div>
+        <p><span>Key</span></p>
+        <select name="key" id="key-selector">
+          <option value="power">Power</option>
+          <option value="home">Home</option>
+          <option value="volumedown">VolumeDown</option>
+          <option value="volumeup">VolumeUp</option>
+        </select>
+      </div>
+      <div>
+        <p><span>Add in-process iframe</span></p>
+        <div>
+          <input type="checkbox" name="in-process-iframe" class="in-process-iframe"></input>
+          <div class="checkbox"></div>
+        </div>
+      </div>
+      <div>
+        <p></span>Scenario</span></p>
+        <select name="scenario" id="two-layer-scenario-selector">
+          <option value="system-only">System Only</option>
+          <option value="system-first">System First</option>
+          <option value="app-cancelled">App Cancelled</option>
+          <option value="app-firest">App First</option>
+        </select>
+        <select name="scenario" id="three-layer-scenario-selector" class="in-process-iframe" disabled>
+          <option value="s1">Scenario 1</option>
+          <option value="s2">Scenario 2</option>
+          <option value="s3">Scenario 3</option>
+          <option value="s4">Scenario 4</option>
+          <option value="s5">Scenario 5</option>
+          <option value="s6">Scenario 6</option>
+        </select>
+      </div>
+      <div id="outer-frame">
+      </div>
+    </article>
+    <article>
+      <h3 id="event-dashboard"></h3>
+    </article>
+  </body>
+</html>
