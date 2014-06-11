@@ -123,6 +123,13 @@
     window.addEventListener('mozChromeEvent', this);
 
     window.addEventListener('softwareButtonEvent', this);
+
+    window.addEventListener('mozbrowserbeforekeydown', this);
+    window.addEventListener('mozbrowserbeforekeyup', this);
+    window.addEventListener('mozbrowserkeydown', this);
+    window.addEventListener('mozbrowserkeyup', this);
+    window.addEventListener('keydown', this);
+    window.addEventListener('keyup', this);
   };
 
   /**
@@ -146,6 +153,13 @@
     window.removeEventListener('mozChromeEvent', this);
 
     window.removeEventListener('softwareButtonEvent', this);
+
+    window.removeEventListener('mozbrowserbeforekeydown', this);
+    window.removeEventListener('mozbrowserbeforekeyup', this);
+    window.removeEventListener('mozbrowserkeydown', this);
+    window.removeEventListener('mozbrowserkeyup', this);
+    window.removeEventListener('keydown', this);
+    window.removeEventListener('keyup', this);
   };
 
   /**
@@ -177,25 +191,63 @@
     }
   };
 
+  HardwareButtons.KEYEVENTS = [
+    'mozbrowserbeforekeydown',
+    'mozbrowserbeforekeyup',
+    'mozbrowserkeydown',
+    'mozbrowserkeyup',
+    'keydown',
+    'keyup'
+  ];
+
   /**
    * Handle events from Gecko.
    * @memberof HardwareButtons.prototype
    * @param  {Object} evt Event.
    */
   HardwareButtons.prototype.handleEvent = function hb_handleEvent(evt) {
-    var type = evt.detail.type;
-    switch (type) {
-      case 'home-button-press':
-      case 'home-button-release':
-      case 'sleep-button-press':
-      case 'sleep-button-release':
-      case 'volume-up-button-press':
-      case 'volume-up-button-release':
-      case 'volume-down-button-press':
-      case 'volume-down-button-release':
-        console.log(type);
+    var type;
+    console.log('evt.type = ' + evt.type + ', evt.detail = ' +
+      JSON.stringify(evt.detail));
+    if (evt.type === 'softwareButtonEvent' || evt.type === 'mozChromeEvent') {
+      type = evt.detail.type;
+      switch (type) {
+        case 'home-button-press':
+        case 'home-button-release':
+        case 'sleep-button-press':
+        case 'sleep-button-release':
+        case 'volume-up-button-press':
+        case 'volume-up-button-release':
+        case 'volume-down-button-press':
+        case 'volume-down-button-release':
+          this.state.process(type);
+          break;
+      }
+    } else if (HardwareButtons.KEYEVENTS.indexOf(evt.type) > -1) {
+      var key = evt.detail.key.toLowerCase();
+      var suffix = (evt.type.indexOf('keyup') > -1) ? 'release' : 'press';
+      if (evt.type === 'mozbrowserbeforekeyup' ||
+          evt.type === 'mozbrowserbeforekeydown') {
+        switch(key) {
+          case 'power':
+            type = 'sleep-button-' + suffix;
+            break;
+          case 'exit':
+          case 'home':
+            type = 'home-button-' + suffix;
+            break;
+          case 'volumeup':
+            type = 'volume-up-button-' + suffix;
+            break;
+          case 'volumedown':
+            type = 'volume-down-button-' + suffix;
+            break;
+        }
+        console.log('Pass to state: type = ' + type);
         this.state.process(type);
-        break;
+      }
+      // Prevent all keydown and keyup event to be dispatched to child frame
+      evt.preventDefault();
     }
   };
 
