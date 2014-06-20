@@ -11,12 +11,6 @@
     _settings: {},
     start: function hkm_start() {
       var that = this;
-      window.addEventListener('mozbrowserbeforekeydown', this);
-      window.addEventListener('mozbrowserbeforekeyup', this);
-      window.addEventListener('mozbrowserkeydown', this);
-      window.addEventListener('mozbrowserkeyup', this);
-      window.addEventListener('keydown', this);
-      window.addEventListener('keyup', this);
       // for hardware-key-tester
       this._settingsKeyVariant.forEach(function(keyVariant) {
         var defaultValue = 'dontCare';
@@ -35,15 +29,9 @@
       console.log('[HardwareKeyManager] started');
     },
     stop: function hkm_stop() {
-      window.removeEventListener('mozbrowserbeforekeydown', this);
-      window.removeEventListener('mozbrowserbeforekeyup', this);
-      window.removeEventListener('mozbrowserkeydown', this);
-      window.removeEventListener('mozbrowserkeyup', this);
-      window.removeEventListener('keydown', this);
-      window.removeEventListener('keyup', this);
       console.log('[HardwareKeyManager] stopped');
     },
-    handleEvent: function hkm_handleEvent(evt) {
+    process: function hkm_process(evt) {
       var key;
       var beforeKey;
       console.log(evt.type + ': ' + JSON.stringify(evt.detail));
@@ -63,13 +51,6 @@
       }
     }
   };
-
-  /*
-   * XXX: Should be move to correct location after
-   * examining dependency
-   */
-  exports.hardwareKeyManager = new HardwareKeyManager();
-  exports.hardwareKeyManager.start();
 
   exports.HardwareKeyManager = HardwareKeyManager;
 }(window));

@@ -1,6 +1,6 @@
 'use strict';
 
-/* global ScreenManager */
+/* global ScreenManager, HardwareKeyManager */
 
 (function(exports) {
 
@@ -118,6 +118,9 @@
     // Kick off the FSM in the base state
     this.state = new HardwareButtonsBaseState(this);
 
+    // Hardware Key Manager
+    this.hkm = new HardwareKeyManager().start();
+
     // This event handler listens for hardware button events and passes the
     // event type to the process() method of the current state for processing
     window.addEventListener('mozChromeEvent', this);
@@ -224,7 +227,7 @@
           break;
       }
     } else if (HardwareButtons.KEYEVENTS.indexOf(evt.type) > -1) {
-      var key = evt.detail.key.toLowerCase();
+      var key = evt.detail && evt.detail.key && evt.detail.key.toLowerCase();
       var suffix = (evt.type.indexOf('keyup') > -1) ? 'release' : 'press';
       if (evt.type === 'mozbrowserbeforekeyup' ||
           evt.type === 'mozbrowserbeforekeydown') {
@@ -243,11 +246,11 @@
             type = 'volume-down-button-' + suffix;
             break;
         }
-        console.log('Pass to state: type = ' + type);
+        console.log('Pass to hkm: evt.type = ' + evt.type + ' key = ' + key);
         this.state.process(type);
+        console.log('Pass to state: type = ' + type);
+        this.hkm.process(evt);
       }
-      // Prevent all keydown and keyup event to be dispatched to child frame
-      evt.preventDefault();
     }
   };
 
