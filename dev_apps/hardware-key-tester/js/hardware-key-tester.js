@@ -17,6 +17,8 @@
     _innerFrame: undefined,
     _checkbox: undefined,
     _pages: undefined,
+    _scenarioKey: undefined,
+    _scenario: undefined,
     _updateSelectValue: function(name, value) {
       if (this._hardwareKeySelectElements) {
         try {
@@ -73,7 +75,9 @@
     },
     handleEvent: function(evt) {
       var key = evt.key.toLowerCase();
-      var settingsKey = 'hardware-key.' + key + '.after';
+      var settingsKey = 'hardware-key.' + key + '.after',
+        embedderBeforeKey = 'hardware-key.' + key + '.embedderBefore',
+        embedderAfterKey = 'hardware-key.' + key + '.embedderAfter';
       if (this._settingsKeyVariant.indexOf(key) >= 0) {
         if (this._eventDashboardElem) {
           this._eventDashboardElem.textContent = evt.type + ': ' + evt.key;
@@ -84,11 +88,98 @@
           this._clearDashboardTimer =
             window.setTimeout(this._clearDashboard.bind(this), 1500);
         }
-        if (this._settings[settingsKey] === 'embeddedCancelled') {
+        if ((evt.type === 'keydown' || evt.type === 'keyup') &&
+            this._settings[settingsKey] === 'embeddedCancelled') {
           evt.preventDefault();
+        } else if ((evt.type === 'mozbrowserbeforekeydown' ||
+            evt.type === 'mozbrowserbeforekeyup') &&
+            this._settings[embedderBeforeKey] === 'preventDefault') {
+          evt.preventDefault();
+        } else if (evt.type == 'mozbrowserkeydown' ||
+            evt.type === 'mozbrowserkeyup') {
+          if (this._settings[embedderAfterKey] === 'preventDefault') {
+            evt.preventDefault();
+          } else if (this._settings[embedderAfterKey] === 'embeddedCancelled') {
+            console.log(key + ' ' + evt.type + '.embeddedCancelled = ' +
+              evt.embeddedCancelled);
+          }
         }
       }
       console.log(evt.type + ': ' + evt.key);
+    },
+    scenarioProcessor: function(key, scenario) {
+      var key = this._scenarioKey,
+        scenario = this._scenario,
+        beforeKey = 'hardware-key.' + key + '.before',
+        afterKey = 'hardware-key.' + key + '.after',
+        embedderBeforeKey = 'hardware-key.' + key + '.embedderBefore',
+        embedderAfterKey = 'hardware-key.' + key + '.embedderAfter',
+        sset = {};
+
+      switch (scenario) {
+        case 'system-only': // system prevent default on mozbrowserbeforekeydown/up
+          sset[beforeKey] = 'preventDefault';
+          sset[afterKey] = 'dontCare';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+        case 'system-first':
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'dontCare';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+        case 'app-cancelled': // embedded app prevent default on keydown
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'embeddedCancelled';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+        case 'app-first':
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'embeddedCancelled';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+        case 's1': // no any preventDefault
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'dontCare';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+        case 's2': // system app prevent default on mozbrowserbeforekeydown/up
+          sset[beforeKey] = 'preventDefault';
+          sset[afterKey] = 'dontCare';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+        case 's3': // embedder app prevent default on mozbrowserbeforekeydown/up
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'dontCare';
+          sset[embedderBeforeKey] = 'preventDefault';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+        case 's4': // embedded app prevent default on keydown/up
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'dontCare';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'embeddedCancelled';
+          break;
+        case 's5': // embedder app prevent default on mozbrowserkeydown/up
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'embeddedCancelled';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'preventDefault';
+          break;
+        case 's6': // system app prevent default on mozbrowserkeydown/up
+          // seems useless
+          sset[beforeKey] = 'dontCare';
+          sset[afterKey] = 'preventDefault';
+          sset[embedderBeforeKey] = 'dontCare';
+          sset[embedderAfterKey] = 'dontCare';
+          break;
+      }
+      SettingsListener.getSettingsLock().set(sset);
     },
     start: function hkt_start() {
       var that = this;
@@ -101,6 +192,8 @@
         document.getElementById('two-layer-scenario-selector');
       this._threeLayerScenarioSelector =
         document.getElementById('three-layer-scenario-selector');
+      this._scenarioKey = this._keySelector.value;
+      this._scenario = this._twoLayerScenarioSelector.value;
       this._outerFrame = document.getElementById('outer-frame');
       this._checkbox = document.querySelector('div.checkbox');
       this._pages = document.querySelectorAll('article.page');
@@ -150,23 +243,37 @@
           that._createFrame();
           that._twoLayerScenarioSelector.disabled = true;
           that._threeLayerScenarioSelector.disabled = false;
+          that._scenario = that._threeLayerScenarioSelector.value;
+          console.log('_scenario = ' + that._scenario);
         } else {
           that._destroyFrame();
           that._twoLayerScenarioSelector.disabled = false;
           that._threeLayerScenarioSelector.disabled = true;
+          that._scenario = that._twoLayerScenarioSelector.value;
+          console.log('_scenario = ' + that._scenario);
         }
       });
       this._keySelector.addEventListener('change', function(evt) {
-        // TODO
+        that._scenarioKey = evt.target.value;
+        console.log('_scenarioKey = ' + that._scenarioKey);
+        that.scenarioProcessor();
       });
       this._twoLayerScenarioSelector.addEventListener('change', function(evt) {
-        // TODO
+        that._scenario = evt.target.value;
+        console.log('_scenario = ' + that._scenario);
+        that.scenarioProcessor();
       });
       this._threeLayerScenarioSelector.addEventListener('change', function(evt) {
-        // TODO
+        that._scenario = evt.target.value;
+        console.log('_scenario = ' + that._scenario);
+        that.scenarioProcessor();
       });
-      window.addEventListener('keyup', this);
       window.addEventListener('keydown', this);
+      window.addEventListener('keyup', this);
+      window.addEventListener('mozbrowserbeforekeydown', this);
+      window.addEventListener('mozbrowserkeydown', this);
+      window.addEventListener('mozbrowserbeforekeyup', this);
+      window.addEventListener('mozbrowserkeyup', this);
     },
     stop: function hkt_stop() {
       // TODO

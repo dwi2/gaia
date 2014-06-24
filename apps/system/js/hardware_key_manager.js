@@ -25,8 +25,8 @@
             that._settings[afterKey] = value;
         });
       });
-
       console.log('[HardwareKeyManager] started');
+      return this;
     },
     stop: function hkm_stop() {
       console.log('[HardwareKeyManager] stopped');
