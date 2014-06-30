@@ -123,8 +123,6 @@
 
     // This event handler listens for hardware button events and passes the
     // event type to the process() method of the current state for processing
-    window.addEventListener('mozChromeEvent', this);
-
     window.addEventListener('softwareButtonEvent', this);
 
     window.addEventListener('mozbrowserbeforekeydown', this);
@@ -152,8 +150,6 @@
     }
 
     this.state = null;
-
-    window.removeEventListener('mozChromeEvent', this);
 
     window.removeEventListener('softwareButtonEvent', this);
 
@@ -210,9 +206,9 @@
    */
   HardwareButtons.prototype.handleEvent = function hb_handleEvent(evt) {
     var type;
-    console.log('evt.type = ' + evt.type + ', evt.detail = ' +
-      JSON.stringify(evt.detail));
-    if (evt.type === 'softwareButtonEvent' || evt.type === 'mozChromeEvent') {
+    if (evt.type === 'softwareButtonEvent') {
+      console.log('evt.type = ' + evt.type + ', evt.detail = ' +
+        JSON.stringify(evt.detail));
       type = evt.detail.type;
       switch (type) {
         case 'home-button-press':
@@ -227,10 +223,18 @@
           break;
       }
     } else if (HardwareButtons.KEYEVENTS.indexOf(evt.type) > -1) {
-      var key = evt.detail && evt.detail.key && evt.detail.key.toLowerCase();
+      var key = (evt.detail && evt.detail.key.toLowerCase()) ||
+        (evt.key && evt.key.toLowerCase());
       var suffix = (evt.type.indexOf('keyup') > -1) ? 'release' : 'press';
+      if (evt.type.indexOf('mozbrowser') > -1) {
+        console.log('evt.type = ' + evt.type + ', evt.detail = ' +
+          JSON.stringify(evt.detail));
+      } else {
+        console.log('evt.type = ' + evt.type + ', key = ' + key);
+      }
       if (evt.type === 'mozbrowserbeforekeyup' ||
-          evt.type === 'mozbrowserbeforekeydown') {
+          evt.type === 'mozbrowserbeforekeydown' ||
+          evt.type === 'keyup' || evt.type === 'keydown') {
         switch(key) {
           case 'power':
             type = 'sleep-button-' + suffix;
@@ -246,9 +250,11 @@
             type = 'volume-down-button-' + suffix;
             break;
         }
+        if (type) {
+          console.log('Pass to state: type = ' + type);
+          this.state.process(type);
+        }
         console.log('Pass to hkm: evt.type = ' + evt.type + ' key = ' + key);
-        this.state.process(type);
-        console.log('Pass to state: type = ' + type);
         this.hkm.process(evt);
       }
     }

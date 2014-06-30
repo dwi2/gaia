@@ -38,7 +38,11 @@
       switch (evt.type) {
         case 'mozbrowserbeforekeyup':
         case 'mozbrowserbeforekeydown':
-          key = evt.detail.key.toLowerCase();
+          key = (evt.detail && evt.detail.key && evt.detail.key.toLowerCase())||
+            (evt.key && evt.key.toLowerCase());
+          if (key === 'home') {
+            key = 'exit';
+          }
           beforeKey = 'hardware-key.' + key + '.before';
           if (this._settings[beforeKey] === 'preventDefault') {
             evt.preventDefault();
