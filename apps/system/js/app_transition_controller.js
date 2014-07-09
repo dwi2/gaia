@@ -186,15 +186,20 @@
 
       this.app.setVisible(false, true);
       this.app.element.setAttribute('aria-hidden', 'true');
+      console.log('[bug 1031225] remove active of ' +
+        this.app.name || this.app.origin);
       this.app.element.classList.remove('active');
     };
 
   AppTransitionController.prototype.handle_opening =
     function atc_handle_opening() {
+      console.log('bug1032693: handle_opening');
+
       if (!this.app || !this.app.element)
         return;
       this.app.reviveBrowser();
       this.app.launchTime = Date.now();
+      console.log('bug1032693: fadeIn() in handle_opening');
       this.app.fadeIn();
       this.app.element.removeAttribute('aria-hidden');
       this.app.setVisible(true);
@@ -208,6 +213,7 @@
 
   AppTransitionController.prototype.handle_opened =
     function atc_handle_opened() {
+      console.log('bug1032693: handle_opened');
       if (!this.app || !this.app.element)
         return;
 
@@ -222,6 +228,8 @@
 
       this.resetTransition();
       this.app.element.removeAttribute('aria-hidden');
+      console.log('bug1032693: add active of ' +
+        this.app.name || this.app.origin + 'in handle_opened');
       this.app.element.classList.add('active');
       this.app.setVisible(true);
 

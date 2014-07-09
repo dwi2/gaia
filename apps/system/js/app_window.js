@@ -369,6 +369,8 @@
       return;
     }
 
+    console.log('kill ' + this.name || this.origin);
+
     this._killed = true;
 
     if (DEBUG) {
@@ -814,13 +816,17 @@
   };
 
   AppWindow.prototype.show = function aw_show() {
+    console.log('[bug 1031225] this.isActive() = ' + this.isActive());
     if (!this.isActive()) {
+      console.log('[bug 1031225] add active class');
       this.element.classList.add('active');
     }
   };
 
   AppWindow.prototype.hide = function aw_hide() {
+    console.log('[bug 1031225]this.isActive() = ' + this.isActive());
     if (this.isActive()) {
+      console.log('[bug 1031225] remove active class');
       this.element.classList.remove('active');
     }
   };
