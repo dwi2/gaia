@@ -239,6 +239,9 @@ var NotificationScreen = {
       id: notificationId
     });
     window.dispatchEvent(event);
+    console.log('[1041303]<' + (+new Date()) +
+      '> mozContentEvent: desktop-notification-click, id = ' +
+      notificationId);
 
     window.dispatchEvent(new CustomEvent('notification-clicked', {
       detail: {

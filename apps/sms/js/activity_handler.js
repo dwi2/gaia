@@ -25,6 +25,8 @@ var ActivityHandler = {
       window.navigator.mozSetMessageHandler('sms-received',
         this.onSmsReceived.bind(this));
 
+      console.log('[1041303]<' + (+new Date()) +
+        '> just before mozSetMessageHandler notification');
       window.navigator.mozSetMessageHandler('notification',
         this.onNotification.bind(this));
     }
@@ -247,6 +249,7 @@ var ActivityHandler = {
     var threadHash = '#thread=' + threadId;
 
     var showAction = function act_action() {
+      console.log('[1041303]<' + (+new Date()) + '> show');
       // If we only have a body, just trigger a new message.
       var locationHash = window.location.hash;
       if (!threadId) {
@@ -297,6 +300,8 @@ var ActivityHandler = {
   /* === Incoming SMS support === */
 
   onSmsReceived: function ah_onSmsReceived(message) {
+    console.log('[1041303]<' + (+new Date()) + '> receive SMS');
+
     // Acquire the cpu wake lock when we receive an SMS.  This raises the
     // priority of this process above vanilla background apps, making it less
     // likely to be killed on OOM.  It also prevents the device from going to
@@ -473,6 +478,9 @@ var ActivityHandler = {
   },
 
   onNotification: function ah_onNotificationClick(message) {
+    console.log('[1041303]<' + (+new Date()) +
+      '> SMS app got notification of ' + JSON.stringify(message));
+
     // The "message" argument object does not have
     // the necessary information we need, so we'll
     // extract it from the imageURL string

@@ -41,11 +41,15 @@
 
       switch (evt.type) {
         case 'webapps-launch':
+          console.log('[1041303]<' + (+new Date()) + '> webapps-launch: ' +
+            JSON.stringify(evt.detail));
           // TODO: Look up current opened window list,
           // and then create a new instance here.
           this.publish('launchapp', config);
           break;
         case 'open-app':
+          console.log('[1041303]<' + (+new Date()) + '> open-app: ' +
+            JSON.stringify(evt.detail));
           // System Message Handler API is asking us to open the specific URL
           // that handles the pending system message.
           // We will launch it in background if it's not handling an activity.
