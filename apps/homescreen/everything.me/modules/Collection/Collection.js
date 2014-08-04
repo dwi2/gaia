@@ -164,6 +164,7 @@ void function() {
     };
 
     this.onCloseClick = function onCloseClick() {
+      console.log('1045451>>> onCloseClick');
       self.hide();
     };
 
@@ -340,8 +341,10 @@ void function() {
 
     this.show = function show(e) {
       var data = e.detail;
+      console.log('1045451>>> show is called');
       Evme.CollectionStorage.get(data.id,
         function onGotFromStorage(collectionSettings) {
+          console.log('1045451>>> fill in currentSettings');
           currentSettings = collectionSettings;
 
           var id = el.dataset.id = collectionSettings.id;
@@ -357,6 +360,10 @@ void function() {
     };
 
     this.hide = function hide() {
+      console.log('1045451>>> hide() is called');
+      console.log('1045451>>> currentSettings = ' +
+        currentSettings +
+        ', self.isRenaming = ' + self.isRenaming);
       if (!currentSettings) {
         return false;
       }
@@ -369,6 +376,7 @@ void function() {
       var extraIconsData = resultsManager.getCloudResultsIconData();
       self.update(currentSettings, {'extraIconsData': extraIconsData});
 
+      console.log('1045451>>> clean up currentSettings');
       currentSettings = null;
 
       // hack for preventing the browser from saving the scroll position
@@ -387,6 +395,7 @@ void function() {
 
     function showUI() {
       el.style.display = 'block';
+      console.log('1045451>>> trigger ' + NAME + '::beforeShow');
       window.setTimeout(function() {
         Evme.EventHandler.trigger(NAME, 'beforeShow');
 
@@ -412,11 +421,13 @@ void function() {
     }
 
     function hideUI() {
+      console.log('1045451>>> trigger ' + NAME + '::beforeHide');
       Evme.EventHandler.trigger(NAME, 'beforeHide');
       elHeader.addEventListener('transitionend', function end(e) {
         elHeader.removeEventListener('transitionend', end);
 
         el.style.display = 'none';
+        console.log('1045451>>> trigger ' + NAME + '::hide');
         Evme.EventHandler.trigger(NAME, 'hide');
       });
 

@@ -132,6 +132,7 @@ var EverythingME = {
           collection = GridManager.getIconByOrigin(id),
           elLoader = elCollection.querySelector('.loading-more');
 
+      console.log('1045451>>> ' + id + ' opened, ADD evme-collection-visible');
       appsEl.classList.add('evme-collection-visible');
 
       elCollection.querySelector('.title').innerHTML =
@@ -188,6 +189,7 @@ var EverythingME = {
   // remove pre-evme-load changes
   onCollectionClosed: function onCollectionClosed() {
     var appsEl = document.getElementById('icongrid');
+    console.log('1045451>>> closed, REMOVE evme-collection-visible');
     appsEl.classList.remove('evme-collection-visible');
 
     var elCollection = document.getElementById('collection'),
