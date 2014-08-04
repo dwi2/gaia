@@ -56,12 +56,14 @@ window.Evme = new function Evme_Core() {
     document.body.classList.remove('evme-displayed');
 
     Evme.Searchbar.blur();
+    console.log('1045451>>> call Collection.hide()');
     Evme.Collection.hide();
   };
 
   this.onHomeButtonPress = function onHomeButtonPress() {
     Evme.Searchbar.blur();
 
+    console.log('1045451>>> might call Collection.hide() on home button press');
     if (
     // hide suggested collections list if open
     Evme.CollectionsSuggest && Evme.CollectionsSuggest.hide() ||

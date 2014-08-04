@@ -946,6 +946,7 @@
 
       window.setTimeout(function() {
         var elAffectedByCollection = document.getElementById('icongrid');
+        console.log('1045451>>> ADD evme-collection-visible');
         elAffectedByCollection.classList.add(CLASS_WHEN_COLLECTION_VISIBLE);
       }, 50);
     };
@@ -961,8 +962,10 @@
 
     // starting to hide the collection
     this.beforeHide = function beforeHide() {
+      console.log('1045451>>> beforeHide() is called');
       window.setTimeout(function() {
         var elAffectedByCollection = document.getElementById('icongrid');
+        console.log('1045451>>> REMOVE evme-collection-visible');
         elAffectedByCollection.classList.remove(CLASS_WHEN_COLLECTION_VISIBLE);
       }, 140);
     };
