@@ -23,23 +23,25 @@ suite('system/HardwareButtons', function() {
   //var realDispatchEvent = window.dispatchEvent;
   var CustomEvent = window.CustomEvent;
 
-  var fireChromeEvent = function(type) {
-    var evt = new CustomEvent('mozChromeEvent', {
-      detail: {
-        type: type
-      }
-    });
-
-    /**
-     * XXX: Instead of dispatch the event through real dispatchEvent here
-     * (bypass stub), we call handleEvent() directly to avoid possible conflict
-     * within our dirty unit test environment. See bug 864178 for detail.
-     */
-    //realDispatchEvent.call(window, evt);
+  var fireHardwareKeyEvent = function (type, key, embeddedCancelled) {
+    var evt = {
+      type: type,
+      key: key,
+      location: 0,
+      ctrlKey: false,
+      shiftKey: false,
+      altKey: false,
+      metaKey: false,
+      repeat: false,
+      embeddedCancelled: embeddedCancelled,
+      preventDefault: function() {},
+      getModifierState: function() {}
+    };
     hardwareButtons.handleEvent(evt);
   };
 
   suiteSetup(function(done) {
+    require('/js/browser_key_event_manager.js');
     /**
      * Since the script initializes itself, mocks needs to be in it's right
      * places before we could load the script. We also want to stop() the
@@ -75,8 +77,8 @@ suite('system/HardwareButtons', function() {
   });
 
   test('press and release home (screen enabled)', function() {
-    fireChromeEvent('home-button-press');
-    fireChromeEvent('home-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Home', false);
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Home', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'home',
@@ -92,8 +94,43 @@ suite('system/HardwareButtons', function() {
 
   test('press and release home (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('home-button-press');
-    fireChromeEvent('home-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Home', false);
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Home', false);
+
+    assert.isTrue(stubDispatchEvent.calledOnce);
+    assert.isTrue(stubDispatchEvent.calledWith({ type: 'wake',
+                                                 bubbles: false }));
+
+    assert.isTrue(stubSetTimeout.calledOnce);
+    assert.equal(stubSetTimeout.getCall(0).args[1],
+      hardwareButtons.HOLD_INTERVAL);
+    assert.isTrue(stubClearTimeout.calledOnce);
+    assert.equal(stubClearTimeout.getCall(0).args[0],
+      stubSetTimeout.getCall(0).returnValue);
+  });
+
+  test('press and release home ' +
+      '(system app focused and screen enabled)', function() {
+    fireHardwareKeyEvent('keydown', 'Home', false);
+    fireHardwareKeyEvent('keyup', 'Home', false);
+
+    assert.isTrue(stubDispatchEvent.calledOnce);
+    assert.isTrue(stubDispatchEvent.calledWith({ type: 'home',
+                                                 bubbles: true }));
+
+    assert.isTrue(stubSetTimeout.calledOnce);
+    assert.equal(stubSetTimeout.getCall(0).args[1],
+      hardwareButtons.HOLD_INTERVAL);
+    assert.isTrue(stubClearTimeout.calledOnce);
+    assert.equal(stubClearTimeout.getCall(0).args[0],
+      stubSetTimeout.getCall(0).returnValue);
+  });
+
+  test('press and release home ' +
+      '(system app focused and screen disabled)', function() {
+    ScreenManager.screenEnabled = false;
+    fireHardwareKeyEvent('keydown', 'Home', false);
+    fireHardwareKeyEvent('keyup', 'Home', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'wake',
@@ -110,15 +147,15 @@ suite('system/HardwareButtons', function() {
   test('press and release home (soft home enabled)', function() {
     MockSettingsListener.mCallbacks['software-button.enabled'](true);
 
-    fireChromeEvent('home-button-press');
-    fireChromeEvent('home-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Home', false);
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Home', false);
 
     assert.isTrue(stubDispatchEvent.notCalled);
   });
 
   test('press and release sleep (screen enabled)', function() {
-    fireChromeEvent('sleep-button-press');
-    fireChromeEvent('sleep-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Power', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'sleep',
@@ -134,8 +171,8 @@ suite('system/HardwareButtons', function() {
 
   test('press and release sleep (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('sleep-button-press');
-    fireChromeEvent('sleep-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Power', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'wake',
@@ -150,10 +187,8 @@ suite('system/HardwareButtons', function() {
   });
 
   test('hold volume-down and press sleep (screen enabled)', function() {
-    fireChromeEvent('sleep-button-press');
-    fireChromeEvent('volume-down-button-press');
-    fireChromeEvent('sleep-button-release');
-    fireChromeEvent('volume-down-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'volumedown+sleep',
@@ -162,10 +197,14 @@ suite('system/HardwareButtons', function() {
 
   test('hold volume-down and press sleep (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('sleep-button-press');
-    fireChromeEvent('volume-down-button-press');
-    fireChromeEvent('sleep-button-release');
-    fireChromeEvent('volume-down-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
+
+    assert.isTrue(stubSetTimeout.calledTwice);
+    stubSetTimeout.getCall(1).args[0].call(window);
+
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Power', false);
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeDown', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
@@ -184,10 +223,14 @@ suite('system/HardwareButtons', function() {
   });
 
   test('hold sleep and press volume-down (screen enabled)', function() {
-    fireChromeEvent('volume-down-button-press');
-    fireChromeEvent('sleep-button-press');
-    fireChromeEvent('sleep-button-release');
-    fireChromeEvent('volume-down-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
+
+    assert.isTrue(stubSetTimeout.calledTwice);
+    stubSetTimeout.getCall(1).args[0].call(window);
+
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Power', false);
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeDown', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'volumedown+sleep',
@@ -203,10 +246,14 @@ suite('system/HardwareButtons', function() {
 
   test('hold sleep and press volume-down (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('sleep-button-press');
-    fireChromeEvent('volume-down-button-press');
-    fireChromeEvent('volume-down-button-release');
-    fireChromeEvent('sleep-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
+
+    assert.isTrue(stubSetTimeout.calledTwice);
+    stubSetTimeout.getCall(1).args[0].call(window);
+
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeDown', false);
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Power', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
@@ -225,14 +272,14 @@ suite('system/HardwareButtons', function() {
   });
 
   test('press and hold home (screen enabled)', function() {
-    fireChromeEvent('home-button-press');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Home', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
       hardwareButtons.HOLD_INTERVAL);
     stubSetTimeout.getCall(0).args[0].call(window);
 
-    fireChromeEvent('home-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Home', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'holdhome',
@@ -244,14 +291,14 @@ suite('system/HardwareButtons', function() {
 
   test('press and hold home (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('home-button-press');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Home', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
       hardwareButtons.HOLD_INTERVAL);
     stubSetTimeout.getCall(0).args[0].call(window);
 
-    fireChromeEvent('home-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Home', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
@@ -266,14 +313,14 @@ suite('system/HardwareButtons', function() {
   });
 
   test('press and hold sleep (screen enabled)', function() {
-    fireChromeEvent('sleep-button-press');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
       hardwareButtons.HOLD_INTERVAL);
     stubSetTimeout.getCall(0).args[0].call(window);
 
-    fireChromeEvent('sleep-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Power', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'holdsleep',
@@ -285,14 +332,14 @@ suite('system/HardwareButtons', function() {
 
   test('press and hold sleep (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('sleep-button-press');
+    fireHardwareKeyEvent('mozbrowserbeforekeydown', 'Power', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
       hardwareButtons.HOLD_INTERVAL);
     stubSetTimeout.getCall(0).args[0].call(window);
 
-    fireChromeEvent('sleep-button-release');
+    fireHardwareKeyEvent('mozbrowserbeforekeyup', 'Power', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
@@ -307,8 +354,8 @@ suite('system/HardwareButtons', function() {
   });
 
   test('press and release volume up (screen enabled)', function() {
-    fireChromeEvent('volume-up-button-press');
-    fireChromeEvent('volume-up-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeUp', false);
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeUp', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'volumeup',
@@ -323,8 +370,8 @@ suite('system/HardwareButtons', function() {
 
   test('press and release volume up (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('volume-up-button-press');
-    fireChromeEvent('volume-up-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeUp', false);
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeUp', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'volumeup',
@@ -338,7 +385,7 @@ suite('system/HardwareButtons', function() {
   });
 
   test('press and hold volume up (screen enabled)', function() {
-    fireChromeEvent('volume-up-button-press');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeUp', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
@@ -355,7 +402,7 @@ suite('system/HardwareButtons', function() {
       hardwareButtons.REPEAT_INTERVAL);
     stubSetTimeout.getCall(1).args[0].call(window);
 
-    fireChromeEvent('volume-up-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeUp', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
@@ -368,7 +415,7 @@ suite('system/HardwareButtons', function() {
 
   test('press and hold volume up (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('volume-up-button-press');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeUp', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
@@ -385,7 +432,7 @@ suite('system/HardwareButtons', function() {
       hardwareButtons.REPEAT_INTERVAL);
     stubSetTimeout.getCall(1).args[0].call(window);
 
-    fireChromeEvent('volume-up-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeUp', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
@@ -397,8 +444,8 @@ suite('system/HardwareButtons', function() {
   });
 
   test('press and release volume down (screen enabled)', function() {
-    fireChromeEvent('volume-down-button-press');
-    fireChromeEvent('volume-down-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeDown', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'volumedown',
@@ -413,8 +460,8 @@ suite('system/HardwareButtons', function() {
 
   test('press and release volume down (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('volume-down-button-press');
-    fireChromeEvent('volume-down-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeDown', false);
 
     assert.isTrue(stubDispatchEvent.calledOnce);
     assert.isTrue(stubDispatchEvent.calledWith({ type: 'volumedown',
@@ -428,7 +475,7 @@ suite('system/HardwareButtons', function() {
   });
 
   test('press and hold volume down (screen enabled)', function() {
-    fireChromeEvent('volume-down-button-press');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
@@ -445,7 +492,7 @@ suite('system/HardwareButtons', function() {
       hardwareButtons.REPEAT_INTERVAL);
     stubSetTimeout.getCall(1).args[0].call(window);
 
-    fireChromeEvent('volume-down-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeDown', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
@@ -458,7 +505,7 @@ suite('system/HardwareButtons', function() {
 
   test('press and hold volume down (screen disabled)', function() {
     ScreenManager.screenEnabled = false;
-    fireChromeEvent('volume-down-button-press');
+    fireHardwareKeyEvent('mozbrowserafterkeydown', 'VolumeDown', false);
 
     assert.isTrue(stubSetTimeout.calledOnce);
     assert.equal(stubSetTimeout.getCall(0).args[1],
@@ -475,7 +522,7 @@ suite('system/HardwareButtons', function() {
       hardwareButtons.REPEAT_INTERVAL);
     stubSetTimeout.getCall(1).args[0].call(window);
 
-    fireChromeEvent('volume-down-button-release');
+    fireHardwareKeyEvent('mozbrowserafterkeyup', 'VolumeDown', false);
 
     assert.isTrue(stubDispatchEvent.calledTwice);
     assert.isTrue(
