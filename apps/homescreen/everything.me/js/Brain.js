@@ -943,10 +943,10 @@
     // starting to show the collection
     this.beforeShow = function beforeShow(data) {
       PaginationBar.hide();
-
+      /* debuguy: tag('Evme.Brain.beforeShow') */
       window.setTimeout(function() {
         var elAffectedByCollection = document.getElementById('icongrid');
-        console.log('1045451>>> ADD evme-collection-visible');
+        /* debuguy: tag('Evme.Brain.beforeShow.addClass') */
         elAffectedByCollection.classList.add(CLASS_WHEN_COLLECTION_VISIBLE);
       }, 50);
     };
@@ -962,10 +962,10 @@
 
     // starting to hide the collection
     this.beforeHide = function beforeHide() {
-      console.log('1045451>>> beforeHide() is called');
+      /* debuguy: tag('Evme.Brain.beforeHide') */
       window.setTimeout(function() {
         var elAffectedByCollection = document.getElementById('icongrid');
-        console.log('1045451>>> REMOVE evme-collection-visible');
+        /* debuguy: tag('Evme.Brain.beforeHide.removeClass') */
         elAffectedByCollection.classList.remove(CLASS_WHEN_COLLECTION_VISIBLE);
       }, 140);
     };

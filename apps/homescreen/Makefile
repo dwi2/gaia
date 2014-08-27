@@ -8,6 +8,9 @@ all: clean
 	@mkdir -p $(BUILD_DIR)
 	@cp -r * $(BUILD_DIR)
 	@rm -rf $(BUILD_DIR)/Makefile $(BUILD_DIR)/build $(BUILD_DIR)/test
+	@debuguy parse $(BUILD_DIR)/js
+	@debuguy parse $(BUILD_DIR)/everything.me/js
+	@debuguy parse $(BUILD_DIR)/everything.me/modules/Collection
 	@$(call run-app-js-command, build)
 clean:
 	@rm -rf $(BUILD_DIR)
