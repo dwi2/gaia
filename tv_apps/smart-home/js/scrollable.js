@@ -1,7 +1,7 @@
-'use strict';
-
 /* global evt, SpatialNavigator */
+
 (function(exports) {
+  'use strict';
 
   function XScrollable(frameElem, listElem, items) {
     this.translateX = 0;

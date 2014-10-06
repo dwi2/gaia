@@ -1,5 +1,6 @@
 'use strict';
 /* global SpatialNavigator, KeyEvent, SelectionBorder, XScrollable */
+/* global CardManager, URL, Home */
 
 (function(exports) {
 
@@ -8,35 +9,99 @@
   Home.prototype = {
     navigableIds: ['search-input'],
     navigableClasses: ['filter-tab', 'command-button'],
-    cardScrollable: new XScrollable(
-        'card-list-frame',
-        'card-list',
-        'card-thumbnail'),
-    folderScrollable: new XScrollable(
-        'folder-list-frame',
-        'folder-list',
-        'folder-card-thumbnail'),
     navigableScrollable: [],
+    cardScrollable: undefined,
+    folderScrollable: undefined,
+
+    cardListElem: document.getElementById('card-list'),
+    cardManager: undefined,
 
     init: function() {
-      this.navigableScrollable = [this.cardScrollable, this.folderScrollable];
-      var collection = this.getNavigateElements();
-      this.spatialNavigator = new SpatialNavigator(collection);
-      this.selectionBorder = new SelectionBorder({
-          multiple: false,
-          container: document.getElementById('main-section'),
-          forground: true });
+      var that = this;
+      this.cardManager = new CardManager();
+      this.cardManager.start();
 
-      window.addEventListener('keydown', this.handleKeyEvent.bind(this));
+      this.cardManager.getCardList().then(function(cardList) {
+        that._createCardList(cardList);
+        that.cardScrollable = new XScrollable(
+          'card-list-frame',
+          'card-list',
+          'card-thumbnail');
+        that.folderScrollable = new XScrollable(
+          'folder-list-frame',
+          'folder-list',
+          'folder-card-thumbnail');
+        that.navigableScrollable = [that.cardScrollable, that.folderScrollable];
+        var collection = that.getNavigateElements();
+        that.spatialNavigator = new SpatialNavigator(collection);
+        that.selectionBorder = new SelectionBorder({
+            multiple: false,
+            container: document.getElementById('main-section'),
+            forground: true });
 
-      this.spatialNavigator.on('focus', this.handleFocus.bind(this));
+        window.addEventListener('keydown', that.handleKeyEvent.bind(that));
 
-      var handleScrollableItemFocusBound =
-                                    this.handleScrollableItemFocus.bind(this);
-      this.navigableScrollable.forEach(function(scrollable) {
-        scrollable.on('focus', handleScrollableItemFocusBound);
+        that.spatialNavigator.on('focus', that.handleFocus.bind(that));
+        var handleScrollableItemFocusBound =
+                                    that.handleScrollableItemFocus.bind(that);
+        that.navigableScrollable.forEach(function(scrollable) {
+          scrollable.on('focus', handleScrollableItemFocusBound);
+        });
+        that.spatialNavigator.focus();
       });
-      this.spatialNavigator.focus();
+    },
+
+    _createCardElement: function(card) {
+      // we will create card element like this:
+      // <div class="card">
+      //   <div class="card-thumbnail"></div>
+      //   <div class="card-description">This is a card</div>
+      // </div>
+      // and return DOM element
+      var cardContainer = document.createElement('div');
+      var cardThumbnailElem = document.createElement('div');
+      var cardDescriptionElem = document.createElement('div');
+      cardContainer.classList.add('card');
+      cardThumbnailElem.classList.add('card-thumbnail');
+      cardDescriptionElem.classList.add('card-description');
+
+      // XXX: will support Folder and other type of Card in the future
+      // for now, we only create card element for App and Deck
+      if (card.type === 'App' || card.type === 'Deck') {
+        var manifestURL = card.nativeApp && card.nativeApp.manifestURL;
+        if (!card.cachedIconBlob && !card.cachedIconURL) {
+          this.cardManager.getIconBlob({
+            manifestURL: manifestURL,
+            entryPoint: card.entryPoint,
+            // XXX: preferredSize should be determined by
+            // real offsetWidth of cardThumbnailElem instead of hard-coded value
+            preferredSize: 200
+          }).then(function(blob) {
+            cardThumbnailElem.style['background-image'] =
+              'url("' + URL.createObjectURL(blob) + '")';
+            card.cachedIconBlob = blob;
+          });
+          cardContainer.dataset.manifestURL = manifestURL;
+        } else if (card.cachedIconBlob) {
+          cardThumbnailElem.style['background-image'] =
+            'url("' + URL.createObjectURL(card.cachedIconBlob) + '")';
+        } else if (card.cachedIconURL) {
+          cardThumbnailElem.style['background-image'] =
+            'url("' + card.cachedIconURL + '")';
+        }
+      }
+
+      cardDescriptionElem.textContent = card.name;
+      cardContainer.appendChild(cardThumbnailElem);
+      cardContainer.appendChild(cardDescriptionElem);
+      return cardContainer;
+    },
+
+    _createCardList: function(cardList) {
+      var that = this;
+      cardList.forEach(function(card) {
+        that.cardListElem.appendChild(that._createCardElement(card));
+      });
     },
 
     handleKeyEvent: function(evt) {
