@@ -1,5 +1,6 @@
 'use strict';
-/* global CardNavigator, KeyEvent, SelectionBorder, XScrollable */
+/* global CardNavigator, KeyEvent, SelectionBorder, XScrollable, CardManager */
+/* global URL */
 
 (function(exports) {
 
@@ -12,34 +13,94 @@
   Home.prototype = {
     navigableIds: ['search-input'],
     navigableClasses: ['filter-tab', 'command-button'],
-    cardScrollable: new XScrollable(
-        'card-list-frame',
-        'card-list',
-        'card-thumbnail'),
-    folderScrollable: new XScrollable(
-        'folder-list-frame',
-        'folder-list',
-        'folder-card-thumbnail'),
     navigableScrollable: [],
+    cardScrollable: undefined,
+    folderScrollable: undefined,
+
+    cardListElem: document.getElementById('card-list'),
+    cardManager: undefined,
 
     init: function() {
-      this.navigableScrollable = [this.cardScrollable, this.folderScrollable];
-      var collection = this.getNavigateElements();
-      this.cardNavigator = new CardNavigator(collection);
-      this.selectionBorder = new SelectionBorder({ multiple: false,
+      var that = this;
+      this.cardManager = new CardManager();
+      this.cardManager.start();
+
+      this.cardManager.getCardList().then(function(cardList) {
+        that._createCardList(cardList);
+        that.cardScrollable = new XScrollable(
+          'card-list-frame',
+          'card-list',
+          'card-thumbnail'),
+        that.folderScrollable = new XScrollable(
+          'folder-list-frame',
+          'folder-list',
+          'folder-card-thumbnail'),
+	      that.navigableScrollable = [that.cardScrollable, that.folderScrollable];
+        var collection = that.getNavigateElements();
+        that.cardNavigator = new CardNavigator(collection);
+        that.selectionBorder = new SelectionBorder({ multiple: false,
                                                    container: $('main-section'),
                                                    forground: true });
 
-      window.addEventListener('keydown', this.handleKeyEvent.bind(this));
+        window.addEventListener('keydown', that.handleKeyEvent.bind(that));
 
-      this.cardNavigator.on('focus', this.handleFocus.bind(this));
+        that.cardNavigator.on('focus', that.handleFocus.bind(that));
 
-      var handleScrollableItemFocusBound =
-                                    this.handleScrollableItemFocus.bind(this);
-      this.navigableScrollable.forEach(function(scrollable) {
-        scrollable.on('focus', handleScrollableItemFocusBound);
+        var handleScrollableItemFocusBound =
+                                    that.handleScrollableItemFocus.bind(that);
+        that.navigableScrollable.forEach(function(scrollable) {
+          scrollable.on('focus', handleScrollableItemFocusBound);
+        });
+        that.cardNavigator.focus();
       });
-      this.cardNavigator.focus();
+    },
+
+    _createCardElement: function(card) {
+      // <div class="card">
+      //   <div class="card-thumbnail"></div>
+      //   <div class="card-description">This is a card</div>
+      // </div>
+      var cardContainer = document.createElement('div');
+      var cardThumbnailElem = document.createElement('div');
+      var cardDescriptionElem = document.createElement('div');
+      cardContainer.classList.add('card');
+      cardThumbnailElem.classList.add('card-thumbnail');
+      cardDescriptionElem.classList.add('card-description');
+
+      if (card.type === 'App' || card.type === 'Deck') {
+        var manifestURL = card.nativeApp && card.nativeApp.manifestURL;
+        // XXX: preferredSize should be determined by
+        // real offsetWidth of cardThumbnailElem instead of hard-coded value
+        if (!card.cachedIconBlob && !card.cachedIconURL) {
+          this.cardManager.getIconBlob(manifestURL, card.entryPoint, 200).then(
+          function(blob) {
+            cardThumbnailElem.style['background-image'] =
+              'url("' + URL.createObjectURL(blob) + '")';
+            card.cachedIconBlob = blob;
+          });
+          cardContainer.dataset.manifestURL = manifestURL;
+        } else if (card.cachedIconBlob) {
+          cardThumbnailElem.style['background-image'] =
+            'url("' + URL.createObjectURL(card.cachedIconBlob) + '")';
+        } else if (card.cachedIconURL) {
+          cardThumbnailElem.style['background-image'] =
+            'url("' + card.cachedIconURL + '")';
+        }
+      } else {
+        // TODO: to retrieve icon for Folder and other type of Card
+      }
+
+      cardDescriptionElem.textContent = card.name;
+      cardContainer.appendChild(cardThumbnailElem);
+      cardContainer.appendChild(cardDescriptionElem);
+      return cardContainer;
+    },
+
+    _createCardList: function(cardList) {
+      var that = this;
+      cardList.forEach(function(card) {
+        that.cardListElem.appendChild(that._createCardElement(card));
+      });
     },
 
     handleKeyEvent: function(evt) {
