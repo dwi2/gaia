@@ -17,7 +17,7 @@
 
   SelectionBorder.MAX_SPARE_BORDERS = 5;
 
-  SelectionBorder.prototype.select = function sb_select(dom) {
+  SelectionBorder.prototype.select = function sb_select(dom, rect) {
     if (!dom) {
       return;
     }
@@ -28,7 +28,7 @@
 
     var border = this.requestBorder();
 
-    var pos = dom.getBoundingClientRect();
+    var pos = rect ? rect : dom.getBoundingClientRect();
     var radius = getComputedStyle(dom).borderBottomLeftRadius;
 
     border.style.left = pos.left + 'px';
