@@ -1,6 +1,7 @@
 apps/system
 apps/settings
 tv_apps/smart-home
+tv_apps/dumb-test
 apps/bluetooth
 apps/calendar
 apps/camera

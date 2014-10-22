@@ -1,0 +1,30 @@
+{
+  "name": "Dumb Test",
+  "description": "Dumb Test App",
+  "launch_path": "/index.html",
+  "type": "certified",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/mozilla-b2g/gaia"
+  },
+  "locales": {
+    "en-US": {
+      "name": "Dumb Test",
+      "description": "Dumb Test App"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "128": "/style/icons/Blank.png"
+  },
+  "permissions": {
+    "webapps-manage": {},
+    "systemXHR":{}
+  },
+  "datastores-access": {
+    "home_cards": {
+      "readonly": false,
+      "description": "Stores all type of cards/decks/apps"
+    }
+  }
+}
