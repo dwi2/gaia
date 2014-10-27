@@ -25,6 +25,10 @@
       return !!this._manifestURL && !!this._dataStore;
     },
 
+    _onChange: function(evt) {
+      this.fire('change', evt);
+    },
+
     _getStore: function cs_getStore() {
       var that = this;
       return this._getPipedPromise('_getStore', function(resolve, reject) {
@@ -37,7 +41,8 @@
           stores.forEach(function(store) {
             if (store.owner === that._manifestURL) {
               that._dataStore = store;
-              that._dataStore.onchange = that.fire('change');
+              that._dataStore.addEventListener('change',
+                that._onChange.bind(that));
             }
           });
           if (that._dataStore) {

@@ -102,6 +102,12 @@
         });
     },
 
+    _onCardStoreChange: function cm_onCardStoreChange(evt) {
+      if (evt.id === 'cardList' && evt.operation === 'updated') {
+        this.fire('changed');
+      }
+    },
+
     _reloadCardList: function cm_loadCardList() {
       var that = this;
       return this._getPipedPromise('_reloadCardList',
@@ -109,12 +115,12 @@
           // load card from datastore
           if (!that._cardStore) {
             that._cardStore = new CardStore();
+            that._cardStore.on('change', that._onCardStoreChange.bind(that));
           }
           that._cardStore.getData('cardList').then(function(cardList) {
             if (cardList) {
               cardList.forEach(function(cardEntry) {
-                var card = cardEntry.type === 'App' ?
-                  that._deserializeCardEntry(cardEntry) : cardEntry;
+                var card = that._deserializeCardEntry(cardEntry);
                 that._cardList.push(card);
               });
               resolve();
@@ -173,7 +179,7 @@
         }
       }
 
-      if (! closestSize) {
+      if (!closestSize) {
         closestSize = max;
       }
 
@@ -223,10 +229,10 @@
       }
     },
 
-    start: function cm_start() {
+    init: function cm_init() {
       var that = this;
       var appMgmt = navigator.mozApps.mgmt;
-      return this._getPipedPromise('start', function(resolve, reject) {
+      return this._getPipedPromise('init', function(resolve, reject) {
         appMgmt.getAll().onsuccess = function onsuccess(event) {
           event.target.result.forEach(function eachApp(app) {
             var manifest = app.manifest;
@@ -247,12 +253,14 @@
       });
     },
 
-    stop: function cm_stop() {
+    uninit: function cm_uninit() {
       var appMgmt = navigator.mozApps.mgmt;
       appMgmt.oninstall = null;
       appMgmt.onuninstall = null;
 
-      this._stopCardStore();
+      this._cardList = [];
+      this._cardStore.off('change');
+      this._cardStore = undefined;
       this.installedApps = {};
     },
 

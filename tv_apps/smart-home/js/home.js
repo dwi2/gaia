@@ -19,7 +19,7 @@
     init: function() {
       var that = this;
       this.cardManager = new CardManager();
-      this.cardManager.start();
+      this.cardManager.init();
 
       this.cardManager.getCardList().then(function(cardList) {
         that._createCardList(cardList);
@@ -77,16 +77,16 @@
             // real offsetWidth of cardThumbnailElem instead of hard-coded value
             preferredSize: 200
           }).then(function(blob) {
-            cardThumbnailElem.style['background-image'] =
+            cardThumbnailElem.style.backgroundImage =
               'url("' + URL.createObjectURL(blob) + '")';
             card.cachedIconBlob = blob;
           });
           cardContainer.dataset.manifestURL = manifestURL;
         } else if (card.cachedIconBlob) {
-          cardThumbnailElem.style['background-image'] =
+          cardThumbnailElem.style.backgroundImage =
             'url("' + URL.createObjectURL(card.cachedIconBlob) + '")';
         } else if (card.cachedIconURL) {
-          cardThumbnailElem.style['background-image'] =
+          cardThumbnailElem.style.backgroundImage =
             'url("' + card.cachedIconURL + '")';
         }
       }
