@@ -49,6 +49,7 @@
           // Real Deck should have nativeApp also.
           name: card.name,
           cachedIconURL: card.cachedIconURL,
+          manifestURL: card.nativeApp && card.nativeApp.manifestURL,
           type: 'Deck'
         };
       }
@@ -67,6 +68,8 @@
         case 'Deck':
           cardInstance = new Deck({
             name: cardEntry.name,
+            nativeApp: cardEntry.manifestURL &&
+                       this.installedApps[cardEntry.manifestURL],
             cachedIconURL: cardEntry.cachedIconURL
           });
           break;
@@ -359,7 +362,7 @@
     }
   });
 
-  addMixin(CardManager, new PipedPromise());
+  SharedUtils.addMixin(CardManager, new PipedPromise());
 
   exports.CardManager = CardManager;
 }(window));
