@@ -57,6 +57,8 @@
       var needTranslation = false;
       if (this._isSystemOnlyKey(event) &&
           (this._isBeforeEvent(event) || this._isKeyEvent(event))) {
+        console.log('event.preventDefault() ' +
+          event.type + '[' + event.key + ']');
         event.preventDefault();
         needTranslation = true;
       } else if (this._isAppCancelledKey(event) && this._isAfterEvent(event)) {
