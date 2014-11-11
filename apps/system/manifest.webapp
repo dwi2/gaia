@@ -46,8 +46,7 @@
     "nfc-manager":{},
     "downloads":{},
     "systemXHR":{},
-    "feature-detection": {},
-    "before-after-keyboard-event": {}
+    "feature-detection": {}
   },
   "locales": {
     "ar": {
