@@ -4,7 +4,6 @@
   'use strict';
 
   var AppDeck = function() {
-
   };
 
   AppDeck.prototype = {
@@ -18,6 +17,8 @@
 
     _appDeckGridViewElem: undefined,
 
+    _appDeckListScrollable: undefined,
+
     init: function ad_init() {
       var that = this;
       Applications.init(function() {
@@ -28,9 +29,15 @@
         appGridElements.forEach(function(appGridElem) {
           that._appDeckGridViewElem.appendChild(appGridElem);
         });
+        that._appDeckListScrollable = new XScrollable({
+          frameElem: 'app-deck-list-frame',
+          listElem: 'app-deck-list',
+          items: 'app-banner'
+        });
         that._navigableElements =
           SharedUtils.nodeListToArray(document.querySelectorAll('.navigable'))
             .concat(appGridElements);
+        that._navigableElements.unshift(that._appDeckListScrollable);
         that._spatialNavigator = new SpatialNavigator(that._navigableElements);
         that._selectionBorder = new SelectionBorder({
             multiple: false,
@@ -39,6 +46,10 @@
 
         window.addEventListener('keydown', that);
         that._spatialNavigator.on('focus', that.handleFocus.bind(that));
+        that._appDeckListScrollable.on('focus', function(scrollable, elem) {
+          that._selectionBorder.select(elem, scrollable.getItemRect(elem));
+          that._focusElem = elem;
+        });
         that._spatialNavigator.focus();
       });
     },
@@ -73,7 +84,9 @@
     },
 
     handleFocus: function ad_handleFocus(elem) {
-      if (elem.nodeName) {
+      if (elem instanceof XScrollable) {
+        elem.spatialNavigator.focus(elem.spatialNavigator.getFocusedElement());
+      } else if (elem.nodeName) {
         this._selectionBorder.select(elem);
         this._focusElem = elem;
       } else {
@@ -90,23 +103,36 @@
     },
 
     handleKeyEvent: function ad_handleKeyEvent(evt) {
+      var key;
+      var focused = this._spatialNavigator.getFocusedElement();
       switch(evt.key) {
         case 'Down':
         case 'ArrowDown':
-          this._spatialNavigator.move('down');
+          key = 'down';
           break;
         case 'Up':
         case 'ArrowUp':
-          this._spatialNavigator.move('up');
+          key = 'up';
           break;
         case 'Right':
         case 'ArrowRight':
-          this._spatialNavigator.move('right');
+          key = 'right';
           break;
         case 'Left':
         case 'ArrowLeft':
-          this._spatialNavigator.move('left');
+          key = 'left';
           break;
+      }
+      console.log('key = ' + key);
+      if (key) {
+        if (focused instanceof XScrollable) {
+          console.log('move inside scrollable');
+          if (focused.spatialNavigator.move(key)) {
+            return;
+          }
+        }
+        console.log('move between element');
+        this._spatialNavigator.move(key);
       }
     }
   };

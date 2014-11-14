@@ -27,11 +27,11 @@
         that.cardScrollable = new XScrollable({
                 frameElem: 'card-list-frame',
                 listElem: 'card-list',
-                items: 'card-thumbnail'}),
+                items: 'card-thumbnail'});
         that.folderScrollable = new XScrollable({
                 frameElem: 'folder-list-frame',
                 listElem: 'folder-list',
-                items: 'folder-card-thumbnail'}),
+                items: 'folder-card-thumbnail'});
         that.navigableScrollable = [that.cardScrollable, that.folderScrollable];
         var collection = that.getNavigateElements();
         that.spatialNavigator = new SpatialNavigator(collection);
