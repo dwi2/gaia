@@ -1,5 +1,5 @@
 'use strict';
-/* global Base, SettingsGroup */
+/* global Base, SettingsGroup, KeyEventHelper */
 
 (function(exports) {
 
@@ -112,11 +112,7 @@
   };
 
   proto.handleKeyDown = function st_handleKeyDown(evt) {
-    // XXX : It's better to use KeyEvent.Key and use "ArrowUp", "ArrowDown",
-    // "ArrowLeft", "ArrowRight" for switching after Gecko synced with W3C
-    // KeyboardEvent.Key standard. Here we still use KeyCode and customized
-    // string of "up", "down", "left", "right" for the moment.
-    var key = this.convertKeyToString(evt.keyCode);
+    var key = KeyEventHelper.convertKeyForSpatialNavigator(evt);
     switch (key) {
       case 'up':
       case 'down':
@@ -130,27 +126,6 @@
       case 'left':
         this.exitPanel(key);
         break;
-    }
-  };
-
-  proto.convertKeyToString = function st_convertKeyToString(keyCode) {
-    switch (keyCode) {
-      case KeyEvent.DOM_VK_UP:
-        return 'up';
-      case KeyEvent.DOM_VK_RIGHT:
-        return 'right';
-      case KeyEvent.DOM_VK_DOWN:
-        return 'down';
-      case KeyEvent.DOM_VK_LEFT:
-        return 'left';
-      case KeyEvent.DOM_VK_RETURN:
-        return 'enter';
-      case KeyEvent.DOM_VK_ESCAPE:
-        return 'esc';
-      case KeyEvent.DOM_VK_BACK_SPACE:
-        return 'esc';
-      default:// we don't consume other keys.
-        return null;
     }
   };
 
