@@ -44,9 +44,6 @@
         };
       } else if (card instanceof Deck) {
         cardEntry = {
-          // XXX: use fake deck until we have real deck,
-          // so we only store name and cachedIconURL.
-          // Real Deck should have nativeApp also.
           name: card.name,
           cachedIconURL: card.cachedIconURL,
           manifestURL: card.nativeApp && card.nativeApp.manifestURL,

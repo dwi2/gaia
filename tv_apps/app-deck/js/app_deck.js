@@ -16,15 +16,13 @@
 
     _focusElem: undefined,
 
-    _appDeckGridViewElem: undefined,
+    _appDeckGridViewElem: document.getElementById('app-deck-grid-view'),
 
     init: function ad_init() {
       var that = this;
       Applications.init(function() {
         var apps = Applications.getAllAppEntries();
         var appGridElements = apps.map(that._createAppGridElement.bind(that));
-        that._appDeckGridViewElem =
-          document.getElementById('app-deck-grid-view');
         appGridElements.forEach(function(appGridElem) {
           that._appDeckGridViewElem.appendChild(appGridElem);
         });
@@ -62,14 +60,19 @@
       appNameElem.appendChild(appNameTextElem);
       container.appendChild(appNameElem);
 
+      var ICON_SIZE_VIEWPORT_WIDTH_RATIO = 10;
+      // XXX: width of container is 10vw, so the best fit icon will be
+      // viewport size * (10/100) if viewport is not scalable. However this
+      // value is subject to change once UX spec has definition on it.
       var bestFitIconSize =
-        Math.max(window.innerWidth, window.innerHeight) / 10;
-      var iconURL = URL.createObjectURL(blob);
-      // XXX: make sure to revoke iconURL once it is no longer needed.
-      // For example, icon is changed or app is uninstalled
-      container.dataset.iconURL = iconURL;
+        Math.max(window.innerWidth, window.innerHeight) /
+        ICON_SIZE_VIEWPORT_WIDTH_RATIO;
       Applications.getIconBlob(
         app.manifestURL, app.entryPoint, bestFitIconSize, function(blob) {
+          var iconURL = URL.createObjectURL(blob);
+          // XXX: make sure to revoke iconURL once it is no longer needed.
+          // For example, icon is changed or app is uninstalled
+          container.dataset.iconURL = iconURL;
           container.style.backgroundImage =
             'url("' + iconURL + '")';
         });
