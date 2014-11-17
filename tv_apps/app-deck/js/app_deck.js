@@ -62,13 +62,18 @@
       appNameElem.appendChild(appNameTextElem);
       container.appendChild(appNameElem);
 
-      // XXX: width of container is 10vw, so the best fit icon will be
-      // screensize * (10/100) = 1920 * 10/100
+      var bestFitIconSize =
+        Math.max(window.innerWidth, window.innerHeight) / 10;
+      var iconURL = URL.createObjectURL(blob);
+      // XXX: make sure to revoke iconURL once it is no longer needed.
+      // For example, icon is changed or app is uninstalled
+      container.dataset.iconURL = iconURL;
       Applications.getIconBlob(
-        app.manifestURL, app.entryPoint, 200, function(blob) {
+        app.manifestURL, app.entryPoint, bestFitIconSize, function(blob) {
           container.style.backgroundImage =
-            'url("' + URL.createObjectURL(blob) + '")';
+            'url("' + iconURL + '")';
         });
+
       return container;
     },
 
