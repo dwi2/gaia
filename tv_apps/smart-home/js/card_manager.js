@@ -140,6 +140,7 @@
             } else {
               // no cardList in datastore, load default from config file
               that._loadDefaultCardList().then(resolve, reject);
+              resolve();
             }
           });
         });

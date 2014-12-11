@@ -3,7 +3,7 @@
 /* global CardManager */
 
 require('/tv_shared/js/vendor/evt.js');
-require('/js/utils.js');
+require('/tv_shared/js/shared_utils.js');
 require('/test/unit/mock_piped_promise.js');
 require('/test/unit/mock_card_store.js');
 require('/test/unit/mock_xml_http_request.js');
@@ -125,7 +125,7 @@ suite('smart-home/CardManager', function() {
       function(done) {
         cardManager._reloadCardList().then(function() {
           assert.isTrue(cardManager._cardList.length > 0);
-          assert.equal(cardManager._cardList[0].name, 'Devices');
+          assert.equal(cardManager._cardList[0].name, 'Television');
         }, function(reason) {
           assert.fail('should not reject promise due to ' + reason);
         }).then(done, done);
