@@ -33,6 +33,7 @@
     <script defer src="shared/js/font_size_utils.js"></script>
     <!-- XXX can be removed while gecko support navigator.mozHour12 API -->
     <script defer src="shared/js/date_time_helper.js"></script>
+    <script defer src="tv_shared/js/simple_key_navigation.js"></script>
 
     <script defer src="js/service.js"></script>
     <script defer src="js/base_ui.js"></script>
@@ -203,7 +204,6 @@
 
     <!-- Notifications -->
     <link rel="stylesheet" type="text/css" href="style/notifications/notifications.css">
-    <script defer src="tv_shared/js/simple_key_navigation.js"></script>
     <script defer src="js/notifications.js"></script>
     <script defer src="js/interactive_notifications.js"></script>
 
@@ -582,8 +582,8 @@
               </dd>
           </dl>
           <menu data-items="2">
-            <button id="app-install-cancel-button" data-l10n-id="cancel">Cancel</button>
-            <button id="app-install-install-button" class="recommend" data-l10n-id="install">Install</button>
+            <smart-button id="app-install-cancel-button" data-l10n-id="cancel" type="circle-text-only">Cancel</smart-button>
+            <smart-button id="app-install-install-button" class="recommend primary" data-l10n-id="install" type="circle-text-only">Install</smart-button>
           </menu>
         </section>
       </form>
@@ -599,8 +599,8 @@
           </p>
           <p data-l10n-id="are-you-sure-you-want-to-cancel">Are you sure you want to cancel this install?</p>
           <menu data-items="2">
-            <button id="app-install-confirm-cancel-button" type="reset" data-l10n-id="cancel-install-button">Cancel Install</button>
-            <button id="app-install-resume-button" type="submit" data-l10n-id="resume">Resume</button>
+            <smart-button id="app-install-confirm-cancel-button" type="circle-text-only" data-l10n-id="cancel-install-button">Cancel Install</smart-button>
+            <smart-button id="app-install-resume-button" type="circle-text-only" data-l10n-id="resume">Resume</smart-button>
           </menu>
         </section>
       </form>

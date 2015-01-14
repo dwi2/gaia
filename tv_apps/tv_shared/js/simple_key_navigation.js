@@ -41,6 +41,15 @@
     }
   };
 
+  proto.focusOn = function skn_focusOn(elem) {
+    var index = this._List.indexOf(elem);
+    if (index >= 0) {
+      this._focusedIndex = index;
+      this._List[this._focusedIndex].focus();
+      this.fire('focusChanged', this._List[this._focusedIndex]);
+    }
+  };
+
   proto.movePrevious = function skn_movePrevious() {
     if (this._focusedIndex < 1) {
       return;

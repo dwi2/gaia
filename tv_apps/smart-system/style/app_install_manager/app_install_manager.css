@@ -7,8 +7,14 @@
 #app-install-cancel-dialog,
 #app-download-cancel-dialog {
   display: none;
-  top: 3rem;
   pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  text-align: center;
+  background-color: #000000;
 }
 
 #setup-installed-app-dialog.visible,
@@ -20,11 +26,14 @@
   pointer-events: auto;
 }
 
-#setup-installed-app-dialog section,
+#setup-installed-app
+-dialog section,
 #ime-layout-dialog section,
 #app-install-dialog section,
 #app-install-cancel-dialog section,
 #app-download-cancel-dialog section {
+  width: 96rem;
+  /*height: 20rem;*/
   height: auto;
 }
 
@@ -37,7 +46,8 @@
   background: none;
 }
 
-#app-install-dialog dl > dt {
+#app-install-dialog dl > dt,
+#app-install-cancel-dialog dl > dt {
   width: 8rem;
   margin-right: 1rem;
   overflow: hidden;
@@ -48,6 +58,27 @@
   margin-bottom: 1rem;
 }
 
+#app-install-dialog > section > menu,
+#app-install-cancel-dialog > section > menu {
+  position: relative;
+  padding-top: 13rem;
+  background: none;
+  border-top: none;
+}
+
+#app-install-dialog > section > menu > smart-button:first-child,
+#app-install-cancel-dialog > section > menu > smart-button:first-child {
+  margin-left: auto;
+}
+
+#app-install-dialog > section > menu > smart-button:not(:first-child),
+#app-install-cancel-dialog > section > menu > smart-button:not(:first-child) {
+  margin-left: 4.4rem;
+}
+
+#app-install-cancel-dialog > section > p {
+  border: none;
+}
 /* ... end of dialog */
 
 /* ... start of keyboard layout */

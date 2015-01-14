@@ -303,3 +303,61 @@ smart-button[type="text-and-icon"].pressed {
  * End of text and icon button
  */
 
+/**
+ * Circle text-only button
+ */
+smart-button[type="circle-text-only"] {
+  position: relative;
+  color: #ffffff;
+  width: 21rem;
+  height: 21rem;
+  border-radius: 10.5rem;
+  font-size: 3.2rem;
+  font-style: italic;
+  line-height: 21rem;
+  overflow: hidden;
+  background-color: #5f6368;
+  text-align: center;
+}
+
+smart-button[type="circle-text-only"].focused {
+  transform: scale(1.2);
+  color: #2d2d2d;
+  background-color: #ffffff;
+}
+
+smart-button[type="circle-text-only"].pressed {
+  transform: scale(1);
+  color: #ffffff;
+  background-color: #00caf2;
+}
+
+smart-button[type="circle-text-only"].primary {
+  background-color: #00caf2;
+}
+
+smart-button[type="circle-text-only"].primary.focused {
+  color: #ffffff;
+  background-color: #00caf2;
+}
+
+smart-button[type="circle-text-only"].primary.pressed {
+  background-color: #0097b5;
+}
+
+smart-button[type="circle-text-only"].danger {
+  background-color: #e63d2f;
+}
+
+smart-button[type="circle-text-only"].danger.focused {
+  color: #ffffff;
+  background-color: #e63d2f;
+}
+
+smart-button[type="circle-text-only"].danger.pressed {
+  background-color: #ac2e23;
+}
+
+/**
+ * End of circle text-only button
+ */

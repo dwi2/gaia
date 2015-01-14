@@ -20,6 +20,7 @@
 /* global Template */
 /* global KeyboardHelper */
 /* global applications */
+/* global SimpleKeyNavigation */
 
 var AppInstallManager = {
   mapDownloadErrorsToMessage: {
@@ -64,6 +65,8 @@ var AppInstallManager = {
     this.setupAppDescription = document.getElementById('setup-app-description');
 
     this.resumeButton = document.getElementById('app-install-resume-button');
+
+    this.simpleKeyNavigation = new SimpleKeyNavigation();
 
     this.appInfos = {};
     this.setupQueue = [];
@@ -162,6 +165,9 @@ var AppInstallManager = {
       return;
     }
 
+    this.hookSimpleNavigator(
+      [this.cancelButton, this.installButton], this.installButton);
+
     this.dialog.classList.add('visible');
 
     var id = detail.id;
@@ -192,10 +198,12 @@ var AppInstallManager = {
     }
 
     this.installCallback = (function ai_installCallback() {
+      this.unhookSimpleNavigator();
       this.dispatchResponse(id, 'webapps-install-granted');
     }).bind(this);
 
     this.installCancelCallback = (function ai_cancelCallback() {
+      this.unhookSimpleNavigator();
       this.dispatchResponse(id, 'webapps-install-denied');
     }).bind(this);
 
@@ -495,8 +503,7 @@ var AppInstallManager = {
   },
 
   handleProgress: function ai_handleProgress(evt) {
-    var app = evt.application,
-        appInfo = this.appInfos[app.manifestURL];
+    var app = evt.application;
 
     this.onDownloadStart(app);
   },
@@ -552,6 +559,10 @@ var AppInstallManager = {
     if (evt) {
       evt.preventDefault();
     }
+
+    this.hookSimpleNavigator(
+      [this.confirmCancelButton, this.resumeButton], this.confirmCancelButton);
+
     this.installCancelDialog.classList.add('visible');
     this.dialog.classList.remove('visible');
   },
@@ -560,6 +571,9 @@ var AppInstallManager = {
     if (evt) {
       evt.preventDefault();
     }
+    this.unhookSimpleNavigator();
+    this.hookSimpleNavigator(
+      [this.cancelButton, this.installButton], this.installButton);
     this.dialog.classList.add('visible');
     this.installCancelDialog.classList.remove('visible');
   },
@@ -568,6 +582,7 @@ var AppInstallManager = {
     if (this.installCancelCallback) {
       this.installCancelCallback();
     }
+    this.unhookSimpleNavigator();
     this.installCancelCallback = null;
     this.installCancelDialog.classList.remove('visible');
   },
@@ -593,7 +608,30 @@ var AppInstallManager = {
     var dialog = this.downloadCancelDialog;
     dialog.classList.remove('visible');
     delete dialog.dataset.manifest;
+  },
+
+  hookSimpleNavigator: function(navigableButtons, defaultFocusButton) {
+    var that = this;
+    this.simpleKeyNavigation.start(navigableButtons,
+      SimpleKeyNavigation.DIRECTION.HORIZONTAL);
+    window.setTimeout(function() {
+      if (document.activeElement) {
+        document.activeElement.blur();
+      }
+      if (defaultFocusButton) {
+        that.simpleKeyNavigation.focusOn(that.defaultFocusButton);
+      }
+    });
+    this.simpleKeyNavigation.on('focusChanged', function(focusedButton) {
+      focusedButton.focus();
+    });
+  },
+
+  unhookSimpleNavigator: function() {
+    this.simpleKeyNavigation.off('focusChanged');
+    this.simpleKeyNavigation.stop();
   }
+
 };
 
 AppInstallManager.init();
