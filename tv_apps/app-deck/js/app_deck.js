@@ -28,6 +28,7 @@
     _cardManager: undefined,
 
     init: function ad_init() {
+      console.log('start app-deck');
       var that = this;
       this._keyNavigationAdapter = new KeyNavigationAdapter();
       this._keyNavigationAdapter.init();
@@ -73,6 +74,12 @@
         that._spatialNavigator.focus();
         that._contextMenu = new ContextMenu();
         that._contextMenu.init(that);
+
+        // debug
+        console.log('send pin on purpose');
+        that._contextMenu._app = apps[0];
+        that._contextMenu.pinOrUnpin();
+
         Applications.on('install', that.onAppInstalled.bind(that));
         Applications.on('update', that.onAppUpdated.bind(that));
         Applications.on('uninstall', that.onAppUninstalled.bind(that));

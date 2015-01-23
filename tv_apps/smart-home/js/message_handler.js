@@ -21,6 +21,9 @@
     },
 
     pin: function mh_pin(cardEntry) {
+      console.log('got pin ' + cardEntry.manifestURL);
+      var cm = this._home.cardManager;
+      console.log('mode = ' + cm._mode + ', state = ' + cm.state);
       this._home.cardManager.insertCard({
         cardEntry: cardEntry
       });

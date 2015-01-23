@@ -403,8 +403,11 @@
       }
 
       this._cardList.splice(position, 0, newCard);
+      console.log(this._cardList);
       this.writeCardlistInCardStore().then(function() {
+        console.log('fire card-inserted event');
         that.fire('card-inserted', newCard, position);
+        console.log(that._cardList);
       });
     },
 

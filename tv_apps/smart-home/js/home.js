@@ -40,6 +40,7 @@
     searchButton: document.getElementById('search-button'),
 
     init: function() {
+      console.log('start home');
       var that = this;
 
       this.initClock();
