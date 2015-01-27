@@ -1,5 +1,5 @@
 /* global evt, SharedUtils, Promise, PipedPromise, Application, CardStore,
-        Deck, AppBookmark, Folder */
+        Deck, AppBookmark, Folder, AsyncSemaphore */
 
 (function(exports) {
   'use strict';
@@ -28,26 +28,7 @@
 
     installedApps: {},
 
-    // We have two states: READY and SYNCING. When we are in SYNCING mode, it
-    // means either _cardList is out-dated or cardStore is out-dated. We need to
-    // block anyone who try to access _cardList until cardManager turns back to
-    // READY state.
-    _state: CardManager.STATES.SYNCING,
-
-    get state() {
-      return this._state;
-    },
-
-    set state(to) {
-      if (CardManager.STATES[to] && CardManager.STATES[to] !== this._state) {
-        this._state = CardManager.STATES[to];
-        this.fire('state-changed', this._state);
-      }
-    },
-
-    isReady: function cr_isReady() {
-      return this.state === CardManager.STATES.READY;
-    },
+    _asyncSemaphore: undefined,
 
     _isHiddenApp: function cm_isHiddenApp(role) {
       if (!role) {
@@ -90,14 +71,14 @@
       var that = this;
       return new Promise(function(resolve, reject) {
         if (folder instanceof Folder && folder.cardsInFolder.length > 0) {
-          that.state = CardManager.STATES.SYNCING;
+          that._asyncSemaphore.v();
           var cardEntriesInFolder =
             folder.cardsInFolder.map(that._serializeCard.bind(that));
           that._cardStore.saveData(folder.folderId,
             cardEntriesInFolder).then(function() {
               folder.state = Folder.STATES.NORMAL;
             }).then(function() {
-              that.state = CardManager.STATES.READY;
+              that._asyncSemaphore.p();
               resolve();
             }, reject);
         } else {
@@ -117,7 +98,7 @@
       return new Promise(function(resolve, reject) {
         var saveDataPromises = [];
         var newCardList;
-        that.state = CardManager.STATES.SYNCING;
+        that._asyncSemaphore.v();
         // The cards inside of folder are not saved nested in cardList
         // but we explicit save them under key of folderId.
         // Here we save content of each folder one by one
@@ -143,10 +124,12 @@
            that._cardList.map(that._serializeCard.bind(that));
         return that._cardStore.saveData('cardList', cardEntries);
       }).then(function() {
-        that.state = CardManager.STATES.READY;
+        that._asyncSemaphore.p();
         if (options && options.cleanEmptyFolder) {
           that.fire('card-removed', emptyFolderIndices);
         }
+      }).catch(function() {
+        that._asyncSemaphore.p();
       });
     },
 
@@ -155,6 +138,7 @@
       return this._getPipedPromise('_loadDefaultCardList',
         function(resolve, reject) {
           var defaultCardListFile = 'tv_shared/resources/default-cards.json';
+          that._asyncSemaphore.v();
           that._loadFile({
             url: defaultCardListFile,
             responseType: 'json'
@@ -173,7 +157,9 @@
               });
             // write cardList into data store for the first time
             that.writeCardlistInCardStore().then(resolve, reject);
-          }, function onReject(error) {
+          }).then(function() {
+            that._asyncSemaphore.p();
+          }).catch(function onReject(error) {
             var reason ='request ' + defaultCardListFile +
               ' got reject ' + error;
             reject(reason);
@@ -184,7 +170,7 @@
     _onCardStoreChange: function cm_onCardStoreChange(evt) {
       var that = this;
       if (evt.id === 'cardList' && evt.operation === 'updated') {
-        this.state = CardManager.STATES.SYNCING;
+        that._asyncSemaphore.v();
         // When we receives 'cardlist-changed' in readonly mode, it means
         // Smart-Home app has change cardList. We'd better re-fetch cardList
         // as a whole.
@@ -192,7 +178,7 @@
           this._cardList = [];
         }
         this._reloadCardList().then(function() {
-          that.state = CardManager.STATES.READY;
+          that._asyncSemaphore.p();
           that.fire('cardlist-changed');
         });
       }
@@ -210,13 +196,13 @@
       var that = this;
       return this._getPipedPromise('_reloadCardList',
         function(resolve, reject) {
+          that._asyncSemaphore.v();
           // initialize card store if needed
           if (!that._cardStore) {
             that._cardStore =
               new CardStore(that._mode, that._manifestURLOfCardStore);
             that._cardStore.on('change', that._onCardStoreChange.bind(that));
           }
-          that.state = CardManager.STATES.SYNCING;
           that._cardStore.getData('cardList').then(function(cardList) {
             if (cardList) {
               cardList.forEach(function(cardEntry) {
@@ -249,7 +235,7 @@
               }, reject);
             }
           }).then(function() {
-            that.state = CardManager.STATES.READY;
+            that._asyncSemaphore.p();
           });
         });
     },
@@ -356,95 +342,119 @@
         name: name,
         state: Folder.STATES.DETACHED
       });
-      if (typeof index !== 'number') {
-        index = this._cardList.length;
-      }
-      this._cardList.splice(index, 0, newFolder);
-      // Notice that we are not saving card list yet
-      // Because newFolder is empty, it is meaningless to save it
-      // But we need to hook `folder-changed` event handler in case
-      // we need to save it when its content changed
-      newFolder.on('folder-changed', this._onFolderChange.bind(this));
-      this.fire('card-inserted', newFolder, index);
+
+      this._asyncSemaphore.wait(function() {
+        if (typeof index !== 'number') {
+          index = this._cardList.length;
+        }
+        this._cardList.splice(index, 0, newFolder);
+        // Notice that we are not saving card list yet
+        // Because newFolder is empty, it is meaningless to save it
+        // But we need to hook `folder-changed` event handler in case
+        // we need to save it when its content changed
+        newFolder.on('folder-changed', this._onFolderChange.bind(this));
+        this.fire('card-inserted', newFolder, index);
+      }, this);
+
       return newFolder;
     },
 
     insertCard: function cm_insertCard(options) {
       var that = this;
-      var newCard = this._deserializeCardEntry(options.cardEntry);
-      var position;
-      if (options.index === 'number') {
-        position = options.index;
-      } else if (!newCard.group) {
-        position = this._cardList.length;
-      } else {
-        // If the given card belongs to a deck (has type), we assume the deck
-        // spans a group with all its bookmarks following deck icon itself, and
-        // the given card should be put at the end of the group.
-        position = -1;
-        for(var idx = 0; idx < this._cardList.length; idx++) {
-          var card = this._cardList[idx];
-          if(position === -1 && !(card instanceof Deck)) {
-            // Only Decks are admitted as the start of the group.
-            continue;
-          } else if (position !== -1 && card.group !== newCard.group) {
-            // We've exceeded the end of the group.
-            break;
-          } else if (card.group === newCard.group) {
-            // We're still inside the group.
-            position = idx;
+
+      console.log('insertCard sem: ' + that._asyncSemaphore.getValue());
+      this._asyncSemaphore.wait(function() {
+        console.log('start insertCard');
+        var newCard = this._deserializeCardEntry(options.cardEntry);
+        var position;
+
+        this._asyncSemaphore.v();
+        if (options.index === 'number') {
+          position = options.index;
+        } else if (!newCard.group) {
+          position = this._cardList.length;
+        } else {
+          // If the given card belongs to a deck (has type), we assume the deck
+          // spans a group with all its bookmarks following deck icon itself,
+          // and the given card should be put at the end of the group.
+          position = -1;
+          for(var idx = 0; idx < this._cardList.length; idx++) {
+            var card = this._cardList[idx];
+            if(position === -1 && !(card instanceof Deck)) {
+              // Only Decks are admitted as the start of the group.
+              continue;
+            } else if (position !== -1 && card.group !== newCard.group) {
+              // We've exceeded the end of the group.
+              break;
+            } else if (card.group === newCard.group) {
+              // We're still inside the group.
+              position = idx;
+            }
+          }
+          position += 1;
+          // No corresponding deck found; insert at bottom.
+          if (position === 0) {
+            position = this._cardList.length;
           }
         }
-        position += 1;
-        // No corresponding deck found; insert at bottom.
-        if (position === 0) {
-          position = this._cardList.length;
-        }
-      }
 
-      this._cardList.splice(position, 0, newCard);
-      console.log(this._cardList);
-      this.writeCardlistInCardStore().then(function() {
-        console.log('fire card-inserted event');
-        that.fire('card-inserted', newCard, position);
-        console.log(that._cardList);
-      });
+        this._cardList.splice(position, 0, newCard);
+        console.log(this._cardList);
+        this.writeCardlistInCardStore().then(function() {
+          console.log('fire card-inserted event at ' + position);
+          that.fire('card-inserted', newCard, position);
+          that._asyncSemaphore.p();
+          console.log(that._cardList);
+        });
+      }, this);
+      console.log(that._asyncSemaphore.pendingTasks[0]);
     },
 
     removeCard: function cm_removeCard(item) {
-      var that = this;
-      var index =
-        (typeof item === 'number') ? item : this._cardList.indexOf(item);
+      this._asyncSemaphore.wait(function() {
+        var that = this;
+        var index =
+          (typeof item === 'number') ? item : this._cardList.indexOf(item);
 
-      if (index >= 0) {
-        this._cardList.splice(index, 1);
-        this.writeCardlistInCardStore().then(function() {
-          that.fire('card-removed', [index]);
-        });
-      }
+        if (index >= 0) {
+          this._cardList.splice(index, 1);
+          this.writeCardlistInCardStore().then(function() {
+            that.fire('card-removed', [index]);
+          });
+        }
+      }, this);
     },
 
     swapCard: function cm_switchCard(item1, item2) {
-      var idx1, idx2;
-      idx1 = (typeof item1 === 'number') ?
-        idx1 = item1 :
-        this._cardList.indexOf(item1);
-      idx2 = (typeof item2 === 'number') ?
-        idx2 = item2 :
-        this._cardList.indexOf(item2);
-      var tmp = this._cardList[idx1];
-      this._cardList[idx1] = this._cardList[idx2];
-      this._cardList[idx2] = tmp;
+      this._asyncSemaphore.wait(function() {
+        var that = this;
+        var idx1, idx2;
+        idx1 = (typeof item1 === 'number') ?
+          idx1 = item1 :
+          this._cardList.indexOf(item1);
+        idx2 = (typeof item2 === 'number') ?
+          idx2 = item2 :
+          this._cardList.indexOf(item2);
+        var tmp = this._cardList[idx1];
+        this._cardList[idx1] = this._cardList[idx2];
+        this._cardList[idx2] = tmp;
 
-      this.writeCardlistInCardStore();
-
-      this.fire('card-swapped',
-                        this._cardList[idx1], this._cardList[idx2], idx1, idx2);
+        this.writeCardlistInCardStore().then(function() {
+          that.fire('card-swapped',
+                        that._cardList[idx1], that._cardList[idx2], idx1, idx2);
+        });
+      }, this);
     },
 
     init: function cm_init(mode) {
       var that = this;
       var appMgmt = navigator.mozApps.mgmt;
+
+      // protect critical async access to cardList
+      this._asyncSemaphore = new AsyncSemaphore();
+      console.log('start init');
+      this._asyncSemaphore.v();
+
       this._mode = mode || 'readwrite';
       // If we are running in readonly mode, we need to tell card store what
       // manifestURL of the datastore we are going to use, because we are not
@@ -453,6 +463,7 @@
         this._manifestURLOfCardStore =
          'app://smart-home.gaiamobile.org/manifest.webapp';
       }
+
       return this._getPipedPromise('init', function(resolve, reject) {
         appMgmt.getAll().onsuccess = function onsuccess(event) {
           event.target.result.forEach(function eachApp(app) {
@@ -465,7 +476,11 @@
           });
 
           that._reloadCardList().then(function() {
+            console.log('init complete');
             resolve();
+          }).then(function() {
+            console.log(that._asyncSemaphore.pendingTasks[0]);
+            that._asyncSemaphore.p();
           });
         };
         appMgmt.addEventListener('install', that);
@@ -478,7 +493,6 @@
       appMgmt.removeEventListener('install', this);
       appMgmt.removeEventListener('uninstall', this);
 
-      this.state = CardManager.STATES.SYNCING;
       this._cardList = [];
       this._cardStore.off('change');
       this._cardStore = undefined;
@@ -565,17 +579,18 @@
       });
     },
 
-    // TODO: need to be protected by state and _reloadCardList
     getCardList: function cm_getCardList() {
       var that = this;
       return this._getPipedPromise('getCardList', function(resolve, reject) {
-        if (!that._isCardListLoaded()) {
+        console.log('getCardList sem: ' + that._asyncSemaphore.getValue());
+        that._asyncSemaphore.wait(function() {
+          console.log('v, reloadCardList promise');
           that._reloadCardList().then(function() {
+            console.log('resolve getCardList');
             resolve(that._cardList);
           });
-        } else {
-          resolve(that._cardList);
-        }
+        }, that);
+        console.log(that._asyncSemaphore.pendingTasks[0]);
       });
     },
 
@@ -632,17 +647,13 @@
     isPinned: function cm_isPinned(options) {
       var that = this;
       return this._getPipedPromise('isPinned', function(resolve, reject) {
-        // we only answered isPinned when card manager is in READY state
-        if (that.isReady()) {
-          resolve(!!that.findCardFromCardList(options));
-        } else {
-          // card manager is not ready, so we append query at the end of
-          // promise of _reloadCardList (which would guarantee card manager will
-          // be READY eventually)
+        that._asyncSemaphore.wait(function() {
           that._reloadCardList().then(function() {
-            resolve(!!that.findCardFromCardList(options));
-          });
-        }
+            var isPinned = !!that.findCardFromCardList(options);
+            console.log(JSON.stringify(options) + ' is pinned');
+            resolve(isPinned);
+        });
+        }, that);
       });
     },
 
