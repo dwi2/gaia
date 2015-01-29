@@ -6,20 +6,19 @@
     this._player = player;
   }
 
-  var presentation = navigator.mozPresentation;
   var proto = Connector.prototype;
 
   proto.init = function c_init() {
-    if (presentation.session) {
-      this.initSession(presentation.session);
+    if (navigator.mozPresentation.session) {
+      this.initSession(navigator.mozPresentation.session);
     } else {
-      presentation.addEventListener('sessionready', this);
+      navigator.mozPresentation.addEventListener('sessionready', this);
     }
   };
 
   proto.initSession = function c_initSession(session) {
     this._session = session;
-    presentation.addEventListener('message', this);
+    navigator.mozPresentation.addEventListener('message', this);
     this.initEvents();
   };
 
@@ -108,7 +107,7 @@
   proto.handleEvent = function c_handleEvent(evt) {
     switch(evt.type) {
       case 'sessionready':
-        this.initSession(presentation.session);
+        this.initSession(navigator.mozPresentation.session);
         break;
       case 'message':
         this.handleRemoteMessage(evt.data);
