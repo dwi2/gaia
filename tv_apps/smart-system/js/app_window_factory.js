@@ -146,7 +146,8 @@
       });
       config.timestamp = detail.timestamp;
       if (protocol === 'APP:') {
-        config.stayBackground = true;
+        // config.stayBackground = true;
+        config.stayBackground = false;
         this.launch(config);
       } else {
         WrapperFactory.launchWrapper(config);
