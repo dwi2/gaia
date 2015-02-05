@@ -16,14 +16,18 @@
     _onStateChange: undefined,
 
     init: function r_init() {
+      console.log('[Demo] start init');
       this._onSessionReady = this._handleSessionReady.bind(this);
       this._onMessage = this._handleMessage.bind(this);
       this._onStateChange = this._handleStateChange.bind(this);
 
       if (navigator.mozPresentation) {
         if (navigator.mozPresentation.session) {
+          console.log('[Demo] mozPresentation.session is ready');
           this._onSessionReady();
         } else {
+          console.log('[Demo] mozPresentation.session is not ready, ' +
+            'add eventListener for sessionready');
           navigator.mozPresentation.addEventListener('sessionready',
             this._onSessionReady);
         }
@@ -46,6 +50,8 @@
     },
 
     _handleSessionReady: function r_handleSessionReady() {
+      console.log('[Demo] _handleSessionReady, mozPresentation.session ' +
+        'is ready');
       var session = navigator.mozPresentation.session;
       session.addEventListener('message', this._onMessage);
       session.addEventListener('statechange', this._onStateChange);
@@ -69,6 +75,7 @@
     },
 
     _handleMessage: function r_handleMessage(evt) {
+      console.log('[Demo] _handleMessage, got ' + evt.data);
       var message = JSON.parse(evt.data);
       var renderedMessage = this._renderMessage(message);
 
@@ -81,6 +88,7 @@
     },
 
     _handleStateChange: function r_handleStateChange(evt) {
+      console.log('[Demo] _handleStateChange, evt.state = ' + evt.state);
       if (!evt.state) {
         this.uninit();
         window.close();

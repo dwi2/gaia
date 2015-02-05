@@ -64,6 +64,7 @@
       return navigator.mozPresentation.startSession(this.urlInput.value).then(
 
         function onFullfilled(session) {
+          console.log('[Demo] connect to remote.');
           this.session = session;
           this.disableButtons(false);
           this.session.onstatechange = this._updateSessionState.bind(this);
