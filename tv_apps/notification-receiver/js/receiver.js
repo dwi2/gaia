@@ -16,21 +16,26 @@
     _onStateChange: undefined,
 
     init: function r_init() {
+      var that = this;
       console.log('[Demo] start init');
       this._onSessionReady = this._handleSessionReady.bind(this);
       this._onMessage = this._handleMessage.bind(this);
       this._onStateChange = this._handleStateChange.bind(this);
 
       if (navigator.mozPresentation) {
-        if (navigator.mozPresentation.session) {
-          console.log('[Demo] mozPresentation.session is ready');
-          this._onSessionReady();
-        } else {
-          console.log('[Demo] mozPresentation.session is not ready, ' +
-            'add eventListener for sessionready');
-          navigator.mozPresentation.addEventListener('sessionready',
-            this._onSessionReady);
-        }
+        console.log('[Demo] wait a second before fetching ' +
+          'mozPresentation.session ');
+        window.setTimeout(function() {
+          if (navigator.mozPresentation.session) {
+            console.log('[Demo] mozPresentation.session is ready');
+            that._onSessionReady();
+          } else {
+            console.log('[Demo] mozPresentation.session is not ready, ' +
+              'add eventListener for sessionready');
+            navigator.mozPresentation.addEventListener('sessionready',
+              that._onSessionReady);
+          }
+        });
       }
     },
 
