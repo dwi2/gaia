@@ -95,6 +95,8 @@
     _isSwapping: false,
 
     onCardSwapped: function(card1, card2, idx1, idx2) {
+      console.log('[Debug][' + (new Date().getTime()) +
+        '] recv card-swapped (' + idx1 + ', ' + idx2 + ')');
       this.cardScrollable.swap(idx1, idx2);
       this._isSwapping = false;
     },
@@ -104,6 +106,8 @@
         return false;
       }
 
+      console.log('[Debug][' + (new Date().getTime()) +
+        '] Got ' + key + ' key');
       var focus = this.spatialNavigator.getFocusedElement();
       // To guard against calling cardManager.swapCard too frequently.
       // If we are in process of swapping, we should not call
@@ -112,6 +116,8 @@
         var targetItem = focus.getTargetItem(key);
         if (targetItem) {
           this._isSwapping = true;
+          console.log('[Debug][' + (new Date().getTime()) +
+            '] Call cardManager.swapCard');
           this.cardManager.swapCard(
             this.cardManager.findCardFromCardList(
                                     {cardId: focus.currentItem.dataset.cardId}),

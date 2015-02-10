@@ -382,6 +382,8 @@
     },
 
     swap: function(node1, node2) {
+      console.log('[Debug][' + (new Date().getTime()) +
+        '] Start of UI swap, fetch nodes');
       if (typeof node1 === 'number') {
         node1 = this.nodes[node1];
       }
@@ -394,12 +396,20 @@
 
       var idx1 = parseInt(node1.dataset.idx, 10);
       var idx2 = parseInt(node2.dataset.idx, 10);
+      console.log('[Debug][' + (new Date().getTime()) +
+        '] To get indices of nodes');
       this.nodes[idx1] = node2;
       this.nodes[idx2] = node1;
+      console.log('[Debug][' + (new Date().getTime()) +
+        '] To set new position of nodes');
       this._setNodePosition(idx1);
       this._setNodePosition(idx2);
+      console.log('[Debug][' + (new Date().getTime()) +
+        '] To catch focus');
       this.catchFocus();
 
+      console.log('[Debug][' + (new Date().getTime()) +
+        '] Finish of UI swap');
       // TODO: handle cases that one of the swapped nodes is focused.
       // ... should we really need to handle this case?
       return true;
