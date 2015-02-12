@@ -49,6 +49,10 @@ smart-button[type="app-button"].deck-dashboard {
   animation: defaultWaveAnimation 5.0s linear 0s infinite normal;
 }
 
+#main-section[data-mode="arrange"] #card-list .card.focused .deck-wave {
+  animation-play-state: paused;
+}
+
 .wave-front {
   animation-duration: 3.05s
 }

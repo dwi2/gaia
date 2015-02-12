@@ -73,7 +73,6 @@ section {
   left: 0;
   top: 0;
   position: absolute;
-  transition: transform 0.4s cubic-bezier(0.25, 0, 0, 1), filter 0.3s ease;
 }
 
 .card smart-button[type="app-button"].new-card {
