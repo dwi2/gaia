@@ -449,7 +449,6 @@
 
     swapCard: function cm_switchCard(item1, item2) {
       this._asyncSemaphore.wait(function() {
-        var that = this;
         var idx1, idx2;
         idx1 = (typeof item1 === 'number') ?
           idx1 = item1 :
@@ -461,10 +460,10 @@
         this._cardList[idx1] = this._cardList[idx2];
         this._cardList[idx2] = tmp;
 
-        this.writeCardlistInCardStore().then(function() {
-          that.fire('card-swapped',
-                        that._cardList[idx1], that._cardList[idx2], idx1, idx2);
-        });
+        this.fire('card-swapped',
+                      this._cardList[idx1], this._cardList[idx2], idx1, idx2);
+
+        this.writeCardlistInCardStore();
       }, this);
     },
 
