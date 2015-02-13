@@ -94,6 +94,8 @@
       var that = this;
       var emptyFolderIndices = [];
       return new Promise(function(resolve, reject) {
+        console.log('[Debug][' + (new Date().getTime()) +
+          '] Start writeCardlistInCardStore, set semaphore');
         var saveDataPromises = [];
         var newCardList;
         that._asyncSemaphore.v();
@@ -115,13 +117,19 @@
           that._cardList = newCardList;
         }
         Promise.all(saveDataPromises).then(function() {
+          console.log('[Debug][' + (new Date().getTime()) +
+            '] Done processing folders if any');
           resolve();
         });
       }).then(function() {
          var cardEntries =
            that._cardList.map(that._serializeCard.bind(that));
+        console.log('[Debug][' + (new Date().getTime()) +
+          '] Writing cardList');
         return that._cardStore.saveData('cardList', cardEntries);
       }).then(function() {
+        console.log('[Debug][' + (new Date().getTime()) +
+          '] Finish writing cardList, unset semaphore');
         that._asyncSemaphore.p();
         if (options && options.cleanEmptyFolder) {
           that.fire('card-removed', emptyFolderIndices);
