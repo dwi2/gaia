@@ -179,6 +179,10 @@
         default:
           if (evt.type === 'keyboardhide') {
             this.keyboardEnabled = false;
+          } else if (evt.type === 'mozfullscreenchange' &&
+              document.mozFullScreen) {
+            console.log('[FULLSCREEN TEST] try to catch focus');
+            window.focus();
           }
           this.publish('system-resize');
           break;

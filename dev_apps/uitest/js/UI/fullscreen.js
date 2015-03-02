@@ -2,7 +2,7 @@
 
 function fullscreenTest() {
   var fullscreenDiv = document.getElementById('fullscreen-div');
-  
+
   var testBtnDiv = document.getElementById('testBtn-div');
   var testBtn = document.getElementById('testBtn');
   var isFullscreenDiv = false;
@@ -29,7 +29,7 @@ function fullscreenTest() {
         } else {
           document.mozCancelFullScreen();
           testBtnDiv.textContent = 'Test';
-          
+
           // Also cancels fullscreen of caused by another button (if any)
           isFullscreen = false;
           testBtn.textContent = 'Test';
@@ -39,7 +39,14 @@ function fullscreenTest() {
     }
   };
 
+  function keydownHandler(evt) {
+    console.log('[FULLSCREEN TEST] is fullscreen (div, frame) ? (' +
+      document.mozFullScreen + ', ' + window.parent.document.mozFullScreen);
+    console.log('[FULLSCREEN TEST] ' + evt.type + ': ' + evt.key);
+  };
+
   document.body.addEventListener('click', clickHandlers.bind(this));
+  window.addEventListener('keydown', keydownHandler.bind(this));
 }
 
 window.addEventListener('load', fullscreenTest);

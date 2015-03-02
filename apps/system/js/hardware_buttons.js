@@ -234,6 +234,8 @@
       }
     } else {
       var buttonEventType = this.browserKeyEventManager.getButtonEventType(evt);
+      console.log('[FULLSCREEN TEST] ' + evt.type + ': ' +
+        evt.key + ', ' + buttonEventType);
       // having a falsey buttonEventType value means the event should be
       // ignored by System
       if (!buttonEventType) {
