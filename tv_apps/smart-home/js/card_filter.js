@@ -4,14 +4,6 @@
 
   function CardFilter() {}
 
-  CardFilter.FILTERS = Object.freeze({
-    'ALL': 'filter',
-    'TV': 'tv',
-    'DASHBOARD': 'dashboard',
-    'DEVICE': 'device',
-    'APPLICATION': 'application'
-  });
-
   var proto = CardFilter.prototype = new evt();
 
   Object.defineProperty(proto, 'filter', {

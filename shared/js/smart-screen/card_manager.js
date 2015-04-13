@@ -12,6 +12,49 @@
     'SYNCING': 'SYNCING'
   });
 
+  CardManager.FILTERS = Object.freeze({
+    'ALL': {
+      name: 'all',
+      iconName: 'filter'
+    },
+    'TV': {
+      name: 'tv',
+      iconName: 'tv'
+    },
+    'DASHBOARD': {
+      name: 'dashboard',
+      iconName: 'dashboard'
+    },
+    'DEVICE': {
+      name: 'device',
+      iconName: 'device'
+    },
+    'APPLICATION': {
+      name: 'application',
+      iconName: 'application'
+    }
+  });
+
+  CardManager.isValidFilter = function cm_isValidFilter(filterName) {
+    var keys = Object.keys(CardManager.FILTERS);
+    return keys.some(function(key) {
+      return CardManager.FILTERS[key].name === filterName;
+    });
+  };
+
+  CardManager.getFilterByIconName = function cm_getFilterByIconName(iconName) {
+    var keys = Object.keys(CardManager.FILTERS);
+    var filter;
+    keys.some(function(key) {
+      var cursor = CardManager.FILTERS[key];
+      if (iconName === cursor.iconName) {
+        filter = cursor;
+        return true;
+      }
+    });
+    return filter;
+  };
+
   CardManager.prototype = evt({
     HIDDEN_ROLES: ['system', 'homescreen', 'addon', 'langpack'],
 
@@ -671,6 +714,24 @@
         }, that);
       }).then(function() {
         return Promise.resolve(that._cardList);
+      });
+    },
+
+    getFilteredCardList: function cm_getFilteredCardList(filter) {
+      return this.getCardList().then(function(allCards) {
+        var filteredCards = [];
+        if (CardManager.isValidFilter(filter)) {
+          if (filter === 'all') {
+            filteredCards = allCards;
+          } else {
+            allCards.forEach(function(card) {
+              if (card.group === filter) {
+                filteredCards.push(card);
+              }
+            });
+          }
+        }
+        return Promise.resolve(filteredCards);
       });
     },
 

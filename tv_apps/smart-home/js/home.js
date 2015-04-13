@@ -16,7 +16,7 @@
 
   Home.prototype = {
     navigableIds:
-        ['search-button', 'search-input', 'settings-group'],
+        ['search-button', 'search-input', 'settings-group', 'filter-tab-group'],
 
     topElementIds: ['search-button', 'search-input', 'settings-group',
         'edit-button', 'settings-button'],
@@ -25,7 +25,7 @@
         'filter-app-button'],
 
     isNavigable: true,
-    navigableClasses: ['command-button'],
+    navigableClasses: ['filter-tab', 'command-button'],
     navigableScrollable: [],
     cardScrollable: undefined,
     folderScrollable: undefined,
@@ -34,6 +34,8 @@
     _folderCard: undefined,
 
     cardFilter: undefined,
+    filterElementIds: ['filter-all-button', 'filter-tv-button',
+        'filter-dashboard-button', 'filter-device-button', 'filter-app-button'],
 
     cardListElem: document.getElementById('card-list'),
     folderListElem: document.getElementById('folder-list'),
@@ -111,8 +113,7 @@
 
         that.cardFilter = new CardFilter();
         that.cardFilter.start(document.getElementById('filter-tab-group'));
-        // all's icon name is filter
-        that.cardFilter.filter = CardFilter.FILTERS.ALL;
+        that.cardFilter.filter = CardManager.FILTERS.ALL.iconName;
         that.cardFilter.on('filterchanged', that.onFilterChanged.bind(that));
 
         that.edit = new Edit();
@@ -377,8 +378,17 @@
       SharedUtils.readColorCode(blob, 0.5, 0, checkColor);
     },
 
-    onFilterChanged: function(name) {
-      console.log('filter changed to: ' + name);
+    onFilterChanged: function(iconName) {
+      var that = this;
+      var filter = CardManager.getFilterByIconName(iconName);
+
+      this.cardScrollable.clean();
+      this.cardManager.getFilteredCardList(filter.name).then(
+        function(filteredList) {
+          filteredList.forEach(function(card) {
+            that.cardScrollable.insertNodeBefore(that._createCardNode(card));
+          });
+        });
     },
 
     _createCardNode: function(card) {
@@ -472,6 +482,9 @@
       } else if (focusElem === this.editButton) {
         this._cleanFolderScrollable();
         this.edit.toggleEditMode();
+      } else if (focusElem &&
+          this.filterElementIds.indexOf(focusElem.id) > -1) {
+        this._cleanFolderScrollable();
       } else {
         // Current focus is on a card
         var cardId = focusElem.dataset.cardId;
