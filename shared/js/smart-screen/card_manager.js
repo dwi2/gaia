@@ -511,6 +511,8 @@
       }, this);
     },
 
+    // XXX: Note that if you put card index as parameters for item1 and item2
+    // Please make sure they are "index of _cardList"
     swapCard: function cm_switchCard(item1, item2) {
       this._asyncSemaphore.wait(function() {
         var that = this;
@@ -717,15 +719,15 @@
       });
     },
 
-    getFilteredCardList: function cm_getFilteredCardList(filter) {
+    getFilteredCardList: function cm_getFilteredCardList(filterName) {
       return this.getCardList().then(function(allCards) {
         var filteredCards = [];
-        if (CardManager.isValidFilter(filter)) {
-          if (filter === 'all') {
+        if (CardManager.isValidFilter(filterName)) {
+          if (filterName === 'all') {
             filteredCards = allCards;
           } else {
             allCards.forEach(function(card) {
-              if (card.group === filter) {
+              if (card.group === filterName) {
                 filteredCards.push(card);
               }
             });

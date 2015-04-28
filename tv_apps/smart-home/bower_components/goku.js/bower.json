@@ -1,0 +1,15 @@
+{
+  "name": "goku.js",
+  "private": true,
+  "main": "goku.min.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "example",
+    "test",
+    "src",
+    "gulpfile.js",
+    "package.json"
+  ]
+}

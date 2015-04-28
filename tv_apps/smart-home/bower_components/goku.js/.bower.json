@@ -1,0 +1,25 @@
+{
+  "name": "goku.js",
+  "private": true,
+  "main": "goku.min.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "example",
+    "test",
+    "src",
+    "gulpfile.js",
+    "package.json"
+  ],
+  "homepage": "https://github.com/seiyugi/goku.js",
+  "_release": "65eb8932fa",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "65eb8932fa98fff246dda27892d95172c6e7922f"
+  },
+  "_source": "git://github.com/seiyugi/goku.js.git",
+  "_target": "*",
+  "_originalSource": "seiyugi/goku.js"
+}

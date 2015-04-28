@@ -37,6 +37,8 @@
     filterElementIds: ['filter-all-button', 'filter-tv-button',
         'filter-dashboard-button', 'filter-device-button', 'filter-app-button'],
 
+    _filteredCardList: undefined,
+
     cardListElem: document.getElementById('card-list'),
     folderListElem: document.getElementById('folder-list'),
     cardManager: undefined,
@@ -388,6 +390,9 @@
           filteredList.forEach(function(card) {
             that.cardScrollable.insertNodeBefore(that._createCardNode(card));
           });
+          Animations.doBubbleAnimation(that.cardListElem, '.app-button', 100);
+          that._filteredCardList =
+            (filter.name !== 'all') ? filteredList : undefined;
         });
     },
 
