@@ -11,6 +11,10 @@
   "permissions": {
     "bluetooth":{}
   },
+  "messages": [
+    { "bluetooth-pairing-request": "/index.html" },
+    { "bluetooth-cancel": "/index.html" }
+  ],
   "locales": {
     "en-US": {
       "name": "Devices",

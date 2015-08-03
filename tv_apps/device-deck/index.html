@@ -5,17 +5,24 @@
     <meta charset="utf-8">
     <title>Devices</title>
 
-    <!-- building blocks -->
+    <!-- styles of building blocks -->
     <link rel="stylesheet" type="text/css" href="bower_components/smart-icons/smart-icons.css">
     <link rel="stylesheet" type="text/css" href="bower_components/smart-button/style.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/smart-dialog/style.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/smart-bubbles/style.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/smart-modal-dialog/style.css">
 
     <link rel="stylesheet" type="text/css" href="style/devices.css">
 
     <!-- Helper libraries -->
     <script defer src="bower_components/evt/index.js"></script>
 
-    <!-- building blocks -->
+    <!-- scripts of building blocks -->
     <script defer src="bower_components/smart-button/script.js"></script>
+    <script defer src="bower_components/smart-dialog/script.js"></script>
+    <script defer src="bower_components/smart-bubbles/script.js"></script>
+    <script defer src="bower_components/smart-modal-dialog/base-modal-dialog.js"></script>
+    <script defer src="bower_components/smart-modal-dialog/smart-modal-dialog.js"></script>
 
     <!-- For test purpose on phone only -->
     <script defer src="shared/js/gesture_detector.js"></script>
@@ -27,9 +34,15 @@
     <script defer src="shared/js/smart-screen/key_navigation_adapter.js"></script>
 
     <!-- Specific code -->
+    <script defer src="bower_components/bluetooth_manager/index.js"></script>
+    <!-- XXX: replace bluetooth_manager with following files -->
+    <!--
     <script defer src="js/bluetooth_loader.js"></script>
     <script defer src="js/bluetooth_cod_mapper.js"></script>
+    <script defer src="js/fake_objects.js"></script>
+    <script defer src="js/gatt_server_manager.js"></script>
     <script defer src="js/bluetooth_manager.js"></script>
+    -->
     <script defer src="js/device_deck.js"></script>
 
     <!-- Shared L10n libraries -->

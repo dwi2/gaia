@@ -1,0 +1,20 @@
+{
+  "name": "bluetooth_manager",
+  "version": "0.1.4",
+  "homepage": "https://github.com/dwi2/bluetooth_manager",
+  "description": "A proxy for WebBluetooth v2 API",
+  "license": "MPL-2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src"
+  ],
+  "dependencies": {
+    "evt": "gaia-components/evt#~0.4.0",
+    "node-uuid": "broofa/node-uuid"
+  },
+  "private": true
+}

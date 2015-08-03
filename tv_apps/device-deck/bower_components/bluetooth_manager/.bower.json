@@ -1,0 +1,29 @@
+{
+  "name": "bluetooth_manager",
+  "version": "0.1.4",
+  "homepage": "https://github.com/dwi2/bluetooth_manager",
+  "description": "A proxy for WebBluetooth v2 API",
+  "license": "MPL-2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src"
+  ],
+  "dependencies": {
+    "evt": "gaia-components/evt#~0.4.0",
+    "node-uuid": "broofa/node-uuid"
+  },
+  "private": true,
+  "_release": "0.1.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.4",
+    "commit": "aa7ed03d359f7fa795bde28f7341ab7feb9d96c0"
+  },
+  "_source": "git://github.com/fxos-bt-squad/bluetooth_manager.git",
+  "_target": "*",
+  "_originalSource": "fxos-bt-squad/bluetooth_manager"
+}

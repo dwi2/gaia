@@ -16,6 +16,8 @@
   "dependencies": {
     "evt": "gaia-components/evt#~0.4.0",
     "smart-button": "gaia-components/smart-button",
-    "smart-icons": "smart-components/smart-icons"
+    "smart-icons": "smart-components/smart-icons",
+    "smart-modal-dialog": "smart-components/smart-modal-dialog",
+    "bluetooth_manager": "fxos-bt-squad/bluetooth_manager"
   }
 }
